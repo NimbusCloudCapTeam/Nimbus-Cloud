@@ -21,37 +21,38 @@
 
         <!--Nav Bar-->
         <div class="container-fluid" style="background-color:#0B3C5D;">
-            <nav class="navbar navbar-dark" style="background-color:#1D2731; margin-top:15px" >
-                <ul class="nav navbar-nav">
-                    <li class="nav-item active">
-                      <a class="nav-link" href="#" style="color:white">Home <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" style="color:white">Features</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" style="color:white">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" style="color:white">About</a>
-                    </li>
-                </ul>
-                <div class="col-md-3" style="margin-top:8px">
+            <nav class="navbar navbar-dark" style="background-color:#1D2731; margin-top:20px" >
+                <div class="col-md-3" style="margin-top:8px; margin-left:15%">
                      <input type="text" class="form-control" placeholder="Search"/>
                </div>  
                 <button type="submit" class="btn btn-default" style="margin-top:8px">Submit</button>
+
+                <ul class="nav navbar-nav navbar-right" style="margin-right:1.5%">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="#" style="color:white">Sort <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#" style="color:white">Delete</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#" style="color:white">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#" style="color:white">Help</a>
+                    </li>
+                </ul>  
             </nav>
         </div>
 
         <div class="container-fluid" style="background-color:#D9B310; min-height:5px;"></div>
         <div class="row">
             <div class="container-fluid" >
-                <div class="col-md-2"  style="background-color:#1D2731; min-height: 690px;">
+                <div class="col-md-2"  style="background-color:#1D2731; min-height: 690px">
                    <h3 style="color:white"><center>Account</center></h3>
                     <div style="min-height:2px; background-color:white"></div>
                     <div style="min-height:20px"></div>
                     <center>
-                       <button type="button" class="btn btn-primary">Add</button>
+                       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal">Add</button>
                        <button type="button" class="btn btn-primary">Remove </button>
                     </center>
                    <div style="min-height:20px"></div>
@@ -141,6 +142,43 @@
         </div>
         </div>
         <div class="container-fluid" style="background-color:#D9B310; min-height:10px;"></div>
+        <div id="addAccountModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content modal-sm">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Account</h4>
+              </div>
+              <div class="modal-body">
+
+                  <div class="dropdown" style="margin-bottom:5%">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownAdd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                       Account Type
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" id="boxAddWindow">Box</a></li>
+                        <li><a href="#" id="dropboxAddWindow">DropBox</a></li>
+                        <li><a href="#" id="googleAddWindow">Google Drive</a></li>
+                        <li><a href="#" id="onedriveAddWindow">Microsoft OneDrive</a></li>                     
+                      </ul>
+                      <div id="accountType" style="margin-top:10px"><b>Selected Account:</b> None</div>
+                   </div>
+                    <div>
+                        <input type="text" class="form-control" placeholder="Account Name" id="accountNameTextBox"/>
+                   </div>  
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-dismiss="modal" id="submitBtn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="closeBtn">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
     </form>
 </body>
 <script>
@@ -171,6 +209,26 @@
            $('#onedriveAccount').html(" <li>- Account1</li><li>- account2</li>");
         }
 
+    })
+    $(function () {
+
+        $(".dropdown-menu li a").click(function () {
+            $("#accountType").html('<b>Selected Account: </b> ' + $(this).text());
+        });
+
+    });
+
+    //modal buttons
+    $("#closeBtn").click(function () {
+    });
+    $("#submitBtn").click(function () {
+        $('#boxAccount').append(('<li> ' + $('#accountNameTextBox').val()) + '</li>');
+    });
+
+    //modal close action
+    $('#addAccountModal').on('hidden.bs.modal', function () {
+        $("#accountType").html('<b>Selected Account: </b> None');
+        $('#accountNameTextBox').val("")
     })
 </script>
 </html>
