@@ -8,33 +8,34 @@ using System.Web;
 public class AccountControl
 {
     //Constructor
-    public AccountControl(){}
+    public AccountControl(){
+    }
 
     //Temp Strings
     String returnString;
     int returnInt;
 
-    private String getUserId() { return returnString;}
+    public String getUserId() { return returnString;}
 
-    void addAccount(String accountType, String accountName) { }
+    public void addAccount(String accountType, String accountName) { }
 
-    void removeAccount(String accountType, String accountName) { }
+    public void removeAccount(String accountType, String accountName) { }
 
-    private String getFiles(String accountType, String accountName) {return returnString; }
+    public String getFiles(String accountType, String accountName) {return returnString; }
 
-    private String getFileName() { return returnString; }
+    public String getFileName() { return returnString; }
 
-    private String getFileType(String fileName) { return returnString; }
+    public String getFileType(String fileName) { return returnString; }
 
-    private int getFilesSize(String fileName) { return returnInt; }
+    public int getFilesSize(String fileName) { return returnInt; }
 
-    private String getFileData(String fileName) { return returnString; }
+    public String getFileData(String fileName) { return returnString; }
 
-    private String getCurrentFileAddress() { return returnString; }
+    public String getCurrentFileAddress() { return returnString; }
 
-    private String getRootFileAddress() { return returnString; }
+    public String getRootFileAddress() { return returnString; }
 
-    private String getAccessToken() { return returnString; }
+    public String getAccessToken() { return returnString; }
 
     void setAccessToken(String accountType, String accountName, int userID, String accessToken) { }
 

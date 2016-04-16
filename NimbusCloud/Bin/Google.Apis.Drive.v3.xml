@@ -1866,9 +1866,6 @@
         <member name="P:Google.Apis.Drive.v3.Data.File.ImageMediaMetadata">
             <summary>Additional metadata about image media, if available.</summary>
         </member>
-        <member name="P:Google.Apis.Drive.v3.Data.File.IsAppAuthorized">
-            <summary>Whether the file was created or opened by the requesting app.</summary>
-        </member>
         <member name="P:Google.Apis.Drive.v3.Data.File.Kind">
             <summary>This is always drive#file.</summary>
         </member>

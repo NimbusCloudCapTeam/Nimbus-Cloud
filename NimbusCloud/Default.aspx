@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-   <title>Time Entry</title>
+   <title>Nimbus Cloud</title>
    <meta charset="utf-8"/>
    <meta name="viewport" content="width=device-width, initial-scale=1"/>
    <script src="Scripts/jquery-1.9.1.min.js"></script>
@@ -158,7 +158,7 @@
                        Account Type
                         <span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" runat="server">
                         <li><a href="#" id="boxAddWindow">Box</a></li>
                         <li><a href="#" id="dropboxAddWindow">DropBox</a></li>
                         <li><a href="#" id="googleAddWindow">Google Drive</a></li>
@@ -172,8 +172,8 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" data-dismiss="modal" id="submitBtn">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="closeBtn">Close</button>
+                <button type="submit" class="btn btn-primary" data-dismiss="modal" id="submitAddAccBtn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="closeAddAccBtn">Close</button>
               </div>
             </div>
 
@@ -210,19 +210,41 @@
         }
 
     })
+    var accountType;
     $(function () {
 
         $(".dropdown-menu li a").click(function () {
             $("#accountType").html('<b>Selected Account: </b> ' + $(this).text());
+            accountType = $(this).text();
         });
 
     });
-
+    var getResult ='';
+    function useReturnData(data) {
+        getResult = data;
+        if (getResult = "true") {
+            $('#boxAccount').append(('<li> ' + $('#accountNameTextBox').val()) + '</li>');
+        }
+    };
     //modal buttons
-    $("#closeBtn").click(function () {
+    $("#closeAddAccBtn").click(function () {
     });
-    $("#submitBtn").click(function () {
-        $('#boxAccount').append(('<li> ' + $('#accountNameTextBox').val()) + '</li>');
+    $("#submitAddAccBtn").click(function () {
+        var newAccountName = $("#accountNameTextBox").val();
+        $.ajax({
+            type: "POST",
+            url: "Default.aspx/setAuthorization",           
+            contentType: 'application/json; charset=utf-8',
+            data: {'accountName' : newAccountName, 'accountType' : accountType},
+            dataType: 'json',
+            success: function (result) {
+                var json = $.parseJSON(result.d);
+                useReturnData(json);
+               // alert(getResult);
+            },
+            error: function (result){
+            }
+        });
     });
 
     //modal close action
@@ -230,5 +252,8 @@
         $("#accountType").html('<b>Selected Account: </b> None');
         $('#accountNameTextBox').val("")
     })
+
+
+
 </script>
 </html>
