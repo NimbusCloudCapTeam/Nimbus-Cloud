@@ -231,18 +231,21 @@
     });
     $("#submitAddAccBtn").click(function () {
         var newAccountName = $("#accountNameTextBox").val();
+
         $.ajax({
             type: "POST",
-            url: "Default.aspx/setAuthorization",           
+            url: "Default.aspx/setAuthorization",
             contentType: 'application/json; charset=utf-8',
-            data: {'accountName' : newAccountName, 'accountType' : accountType},
+            data: JSON.stringify({accountName: newAccountName, accountType : accountType}),
             dataType: 'json',
             success: function (result) {
                 var json = $.parseJSON(result.d);
                 useReturnData(json);
-               // alert(getResult);
+                // alert(getResult);
+                alert("success");
             },
-            error: function (result){
+            error: function (result) {
+                alert("fail");
             }
         });
     });

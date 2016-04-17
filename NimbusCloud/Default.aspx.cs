@@ -16,7 +16,7 @@ using System.Web.Services;
 using System.Web.Script.Serialization;
 using Google.Apis.Plus.v1;
 
-public partial class _Default : System.Web.UI.Page
+public partial class _Default : System.Web.UI.Page 
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -25,19 +25,17 @@ public partial class _Default : System.Web.UI.Page
 
     [WebMethod]
     public static string setAuthorization(string accountName, string accountType) {
-        Authentication authenticate = new Authentication();
+        Authentication authenticate = new Authentication();  
         //AccountControl account = new AccountControl();
-        bool tryAuth = false;
+        //bool tryAuth = false;
         try
         {
             authenticate.setAuth(accountName,accountType);
-            tryAuth = true;
+            //tryAuth = true;
         }
         catch (Exception e) { }
-        string returnString;
-        if (tryAuth) { returnString = "true"; }
-        else { returnString = "false"; }
-        var json = new JavaScriptSerializer().Serialize(returnString);
-        return json;
+        AccountControl account = new AccountControl();
+        account.addAccount(accountType, accountName);
+        return "0";
     }
 }

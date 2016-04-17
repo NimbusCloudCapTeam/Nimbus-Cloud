@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 
@@ -12,31 +15,71 @@ public class AccountControl
     }
 
     //Temp Strings
-    String returnString;
+    string returnString;
     int returnInt;
 
-    public String getUserId() { return returnString;}
+    public object JsonFormatter { get; private set; }
 
-    public void addAccount(String accountType, String accountName) { }
+    public string getUserId() { return returnString;}
 
-    public void removeAccount(String accountType, String accountName) { }
+    public void addAccount(string accountType, string accountName) {
+        string path = "C:/Users/Matthew/Desktop/Nimbus-Cloud-master/NimbusCloud/Scripts/accounts.json";
+        string jsonData = File.ReadAllText(path);
+        string fileStorage = accountType + "." + accountName + ".Auth.Store";
+        string location = accountType + "." + accountName + ".Auth.Store";
 
-    public String getFiles(String accountType, String accountName) {return returnString; }
+        var list = JsonConvert.DeserializeObject<List<Account>>(jsonData);
+        list.Add(new Account() { 
+                AccountType = accountType,
+                AccountName = accountName,
+                Location = location
 
-    public String getFileName() { return returnString; }
+            });
+        var convertedJson = JsonConvert.SerializeObject(list, Formatting.Indented);
+        File.WriteAllText(path, convertedJson);
 
-    public String getFileType(String fileName) { return returnString; }
+    }
+    /*public Item getGoogleAccounts(string accountType, string accountName) {
+        List<string> accounts;
+        using (StreamReader r = new StreamReader("accounts.json"))
+        {
+            string json = r.ReadToEnd();
+            List<Item> items = JsonConvert.DeserializeObject<List<Item>>(json);
+            foreach (var i in items) {
+                var acc = items.;
+                if (acc = "Google") {
+                }
+            }
+        }
+        return items;*/
+    //}
+    class Account
+    {
+        public string AccountType { get; set; }
+        public string AccountName { get; set; }
+        public string Location { get; set; }
+    }
 
-    public int getFilesSize(String fileName) { return returnInt; }
+    //public string getDropBoxAccounts() { }
 
-    public String getFileData(String fileName) { return returnString; }
+    public void removeAccount(string accountType, string accountName) { }
 
-    public String getCurrentFileAddress() { return returnString; }
+    public string getFiles(string accountType, string accountName) {return returnString; }
 
-    public String getRootFileAddress() { return returnString; }
+    public string getFileName() { return returnString; }
 
-    public String getAccessToken() { return returnString; }
+    public string getFileType(string fileName) { return returnString; }
 
-    void setAccessToken(String accountType, String accountName, int userID, String accessToken) { }
+    public int getFilesSize(string fileName) { return returnInt; }
+
+    public string getFileData(string fileName) { return returnString; }
+
+    public string getCurrentFileAddress() { return returnString; }
+
+    public string getRootFileAddress() { return returnString; }
+
+    public string getAccessToken() { return returnString; }
+
+    void setAccessToken(string accountType, string accountName, int userID, string accessToken) { }
 
 }
