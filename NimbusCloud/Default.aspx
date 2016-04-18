@@ -72,7 +72,8 @@
                       <li class="nav-item">
                         <a class="nav-link" href="#googleDrive" style="color:white" role="tab" data-toggle="tab" id="googlePan">Google Drive</a>
                       </li>
-                      <li class="nav-item" id="googleAccount" style="color:white;margin-left:25px">
+                      <li class="nav-item" id="googleAccount" style="margin-left:25px;display:none">
+                          <asp:Button ID="DriveButton" runat="server" Text="Account1" OnClick="DriveButton_Click"/>
                       </li>   
                       <li class="nav-item">
                         <a class="nav-link disabled" href="#onedrive" style="color:white" role="tab" data-toggle="tab" id="onedrivePan">Microsoft OneDrive</a>
@@ -93,36 +94,14 @@
                 <table class="table" >
                   <thead>
                     <tr>
-                      <th>#</th>
+                      <th> </th>
                       <th>File Name</th>
                       <th>Modified</th>
                       <th>File Type</th>
                       <th>File Size</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <th scope="row">1</th>
-                      <td>File</td>
-                      <td>3/3/2012</td>
-                      <td>JPEG</td>
-                      <td>120KB</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">2</th>
-                      <td>File2</td>
-                      <td>3/5/2013</td>
-                      <td>TXT</td>
-                      <td>33MB</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">3</th>
-                      <td>Folder</td>
-                      <td>6/3/2012</td>
-                      <td>FOLDER</td>
-                      <td>1.2G</td>
-                    </tr>
-                  </tbody>
+                  <asp:Literal ID="tableBody" runat="server"></asp:Literal>
                 </table>
             </div>
             <div class="col-md-2"  style="background-color:#1D2731; min-height: 690px;">
@@ -187,25 +166,25 @@
         if (this.id == "boxPan") {
             $('#boxAccount').html("<li>- Account1</li><li>- account2</li>");
             $('#dropboxAccount').empty();
-            $('#googleAccount').empty();
+            $('#googleAccount').css('display', 'none');
             $('#onedriveAccount').empty();
         }
         if (this.id == "dropboxPan") {
             $('#boxAccount').empty();
             $('#dropboxAccount').html("<li>- Account1</li><li>- account2</li>");
-            $('#googleAccount').empty();
+            $('#googleAccount').css('display', 'none');
             $('#onedriveAccount').empty();
         }
         if (this.id == "googlePan") {
             $('#boxAccount').empty();
             $('#dropboxAccount').empty();
-            $('#googleAccount').html(" <li>- Account1</li><li>- account2</li>");
+            $('#googleAccount').css('display', 'block');
             $('#onedriveAccount').empty();
         }
         if (this.id == "onedrivePan") {
            $('#boxAccount').empty();
            $('#dropboxAccount').empty();
-           $('#googleAccount').empty();
+           $('#googleAccount').css('display', 'none');
            $('#onedriveAccount').html(" <li>- Account1</li><li>- account2</li>");
         }
 
@@ -248,6 +227,8 @@
                 alert("fail");
             }
         });
+
+        
     });
 
     //modal close action
@@ -255,8 +236,6 @@
         $("#accountType").html('<b>Selected Account: </b> None');
         $('#accountNameTextBox').val("")
     })
-
-
 
 </script>
 </html>

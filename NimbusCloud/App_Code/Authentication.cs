@@ -13,6 +13,7 @@ using System.Web;
 /// </summary>
 public class Authentication
 {
+    private DriveService service;
 
     public Authentication()
     {
@@ -36,10 +37,16 @@ public class Authentication
                                                                     Environment.UserName,
                                                                     CancellationToken.None,
                                                                     new FileDataStore(fileStorage)).Result;
-        var service = new DriveService(new BaseClientService.Initializer()
+        service = new DriveService(new BaseClientService.Initializer()
         {
             HttpClientInitializer = credential,
             ApplicationName = "Nimbus Cloud Web Application",
         });
+    }
+
+    //gets service so that it can be used to make api calls in other objects
+    public DriveService getService()
+    {
+        return service;
     }
 }

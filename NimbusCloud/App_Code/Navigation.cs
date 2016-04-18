@@ -6,42 +6,41 @@ using System.Threading.Tasks;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 
-namespace ConsoleApplication1
+public class Navigation
 {
-    class Navigation
+    private DriveService service;
+
+    public Navigation(DriveService service)
     {
-        private DriveService service;
+        this.service = service;
+    }
 
-        public Navigation(DriveService service)
+    public IList<File> Navigate(string parent)
+    {
+        string search, s1 = "'", s2 = "' in parents";
+
+        search = s1 + parent + s2;
+
+        return GetFiles(search);
+    }
+
+    private IList<File> GetFiles(string search)
+    {
+        FilesResource.ListRequest listRequest = service.Files.List();
+
+        if (search != null)
         {
-            this.service = service;
+            listRequest.Q = search;
+        }
+        else
+        {
+            listRequest.Q = "'root' in parents";
         }
 
-        public IList<File> Navigate(string parent)
-        {
-            string search, s1 = "'", s2 = "' in parents";
+        listRequest.Fields = "files(id,mimeType,modifiedTime,name,size),kind,nextPageToken";
 
-            search = s1 + parent + s2;
+        IList<File> files = listRequest.Execute().Files;
 
-            return this.GetFiles(search);
-        }
-
-        private IList<File> GetFiles(string search)
-        {
-            FilesResource.ListRequest listRequest = this.service.Files.List();
-
-            if (search != null)
-            {
-                listRequest.Q = search;
-            }
-            else
-            {
-                listRequest.Q = "'root' in parents";
-            }
-
-            IList<File> files = listRequest.Execute().Files;
-
-            return files;
-        }
+        return files;
     }
 }

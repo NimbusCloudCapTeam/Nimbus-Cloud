@@ -23,7 +23,7 @@ public class AccountControl
     public string getUserId() { return returnString;}
 
     public void addAccount(string accountType, string accountName) {
-        string path = "C:/Users/Matthew/Desktop/Nimbus-Cloud-master/NimbusCloud/Scripts/accounts.json";
+        string path = "C:/Users/Tanner/Github/Nimbus-Cloud/NimbusCloud/Scripts/accounts.json";
         string jsonData = File.ReadAllText(path);
         string fileStorage = accountType + "." + accountName + ".Auth.Store";
         string location = accountType + "." + accountName + ".Auth.Store";
