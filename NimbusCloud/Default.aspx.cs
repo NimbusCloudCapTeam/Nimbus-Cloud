@@ -21,10 +21,8 @@ public partial class _Default : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        this.getEmptyNavTable();
     }
 
-    private static IList<Google.Apis.Drive.v3.Data.File> files;
     private static DriveService service;
 
     [WebMethod]
@@ -46,46 +44,11 @@ public partial class _Default : System.Web.UI.Page
         return "0";
     }
 
-    //loads placeholders for nav data
-    private void getEmptyNavTable()
+    [WebMethod]
+    public static IList<Google.Apis.Drive.v3.Data.File> getNavTable()
     {
-        StringBuilder tableOutput = new StringBuilder("<tbody>");
-
-        tableOutput.Append("<tr>");
-        tableOutput.Append("<td> </td>");
-        tableOutput.Append("<td>--</td>");
-        tableOutput.Append("<td>--</td>");
-        tableOutput.Append("<td>--</td>");
-        tableOutput.Append("<td>--</td>");
-        tableOutput.Append("</tr>");
-        tableOutput.Append("</tbody>");
-
-        tableBody.Text = tableOutput.ToString();
-    }
-
-    //loads nav data
-    private void getNavTable()
-    {
-        StringBuilder tableOutput = new StringBuilder("<tbody>");
-
         Navigation navigator = new Navigation(service);
-        files = navigator.Navigate("root");
-
-        
-        foreach (var file in files)
-        {
-            tableOutput.Append("<tr>");
-            tableOutput.Append("<td> </td>");
-            tableOutput.AppendFormat("<td>{0}</td>", file.Name);
-            tableOutput.AppendFormat("<td>{0}</td>", file.ModifiedTime);
-            tableOutput.AppendFormat("<td>{0}</td>", file.MimeType);
-            tableOutput.AppendFormat("<td>{0}</td>", file.Size);
-            tableOutput.Append("</tr>");
-        }
-
-        tableOutput.Append("</tbody>");
-
-        tableBody.Text = tableOutput.ToString();
+        return navigator.Navigate("root");
     }
 
     //loads nav data on click

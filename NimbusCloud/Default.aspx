@@ -73,7 +73,7 @@
                         <a class="nav-link" href="#googleDrive" style="color:white" role="tab" data-toggle="tab" id="googlePan">Google Drive</a>
                       </li>
                       <li class="nav-item" id="googleAccount" style="margin-left:25px;display:none">
-                          <asp:Button ID="DriveButton" runat="server" Text="Account1" OnClick="DriveButton_Click"/>
+                          <li id="driveButton">Account1</li>
                       </li>   
                       <li class="nav-item">
                         <a class="nav-link disabled" href="#onedrive" style="color:white" role="tab" data-toggle="tab" id="onedrivePan">Microsoft OneDrive</a>
@@ -101,7 +101,7 @@
                       <th>File Size</th>
                     </tr>
                   </thead>
-                  <asp:Literal ID="tableBody" runat="server"></asp:Literal>
+                  <tbody id="tableBody"></tbody>
                 </table>
             </div>
             <div class="col-md-2"  style="background-color:#1D2731; min-height: 690px;">
@@ -237,5 +237,62 @@
         $('#accountNameTextBox').val("")
     })
 
+    $('#driveButton').on('click', function () {
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getNavTable',
+            data: '{}',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                $('#tableBody').empty();
+                //append to table body
+                $.each(files.d, function (i, file) {
+                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                    $('#tableBody').append('<td> </td>');
+                    $('#tableBody').append('<td>' + file.Name + '</td>');
+                    $('#tableBody').append('<td>' + dateStr + '</td>');
+                    $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
+                    $('#tableBody').append('<td>' + file.Size + '</td>');
+                    $('#tableBody').append('</tr>');
+                });
+            },
+            error: function () {
+                alert('error loading files');
+            }
+        });
+    });
+
+    $('#fileObj').on('click', function () {
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getNavTable',
+            data: $('#fileObj').data('fileId'),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                $('#tableBody').empty();
+                //append to table body
+                $.each(files.d, function (i, file) {
+                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                    $('#tableBody').append('<td> </td>');
+                    $('#tableBody').append('<td>' + file.Name + '</td>');
+                    $('#tableBody').append('<td>' + dateStr + '</td>');
+                    $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
+                    $('#tableBody').append('<td>' + file.Size + '</td>');
+                    $('#tableBody').append('</tr>');
+                });
+            },
+            error: function () {
+                alert('error loading files');
+            }
+        });
+    });
 </script>
 </html>
