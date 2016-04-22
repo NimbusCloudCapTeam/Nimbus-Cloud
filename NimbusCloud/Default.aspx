@@ -91,7 +91,7 @@
 
 
             <div class="col-md-8"  style="background-color:white; min-height: 690px;">
-                <table class="table" >
+                <table class="table" id="navTable">
                   <thead>
                     <tr>
                       <th> </th>
@@ -237,10 +237,10 @@
         $('#accountNameTextBox').val("")
     })
 
-    $('#driveButton').on('click', function () {
+    $('#driveButton').one('click', function () {
         $.ajax({
             type: 'POST',
-            url: 'Default.aspx/getNavTable',
+            url: 'Default.aspx/getNavTableRoot',
             data: '{}',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
@@ -251,7 +251,7 @@
                     var date = new Date(parseInt(file.ModifiedTime.substr(6)));
                     var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 
-                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                    $('#tableBody').append('<tr class="fileObj" data-fileId="' + file.Id + '">');
                     $('#tableBody').append('<td> </td>');
                     $('#tableBody').append('<td>' + file.Name + '</td>');
                     $('#tableBody').append('<td>' + dateStr + '</td>');
@@ -266,33 +266,37 @@
         });
     });
 
-    $('#fileObj').on('click', function () {
-        $.ajax({
-            type: 'POST',
-            url: 'Default.aspx/getNavTable',
-            data: $('#fileObj').data('fileId'),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (files) {
-                $('#tableBody').empty();
-                //append to table body
-                $.each(files.d, function (i, file) {
-                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+    $('document').on('click', '.fileObj', function () {
+        console.log('pretest');
+        if ($(this).text().match('vnd.google-apps.folder')) {
+            console.log('in if test');
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getNavTableFolder',
+                data: $(this).data('fileId'),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (files) {
+                    $('#tableBody').empty();
+                    //append to table body
+                    $.each(files.d, function (i, file) {
+                        var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                        var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 
-                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
-                    $('#tableBody').append('<td> </td>');
-                    $('#tableBody').append('<td>' + file.Name + '</td>');
-                    $('#tableBody').append('<td>' + dateStr + '</td>');
-                    $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
-                    $('#tableBody').append('<td>' + file.Size + '</td>');
-                    $('#tableBody').append('</tr>');
-                });
-            },
-            error: function () {
-                alert('error loading files');
-            }
-        });
+                        $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                        $('#tableBody').append('<td> </td>');
+                        $('#tableBody').append('<td>' + file.Name + '</td>');
+                        $('#tableBody').append('<td>' + dateStr + '</td>');
+                        $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
+                        $('#tableBody').append('<td>' + file.Size + '</td>');
+                        $('#tableBody').append('</tr>');
+                    });
+                },
+                error: function () {
+                    alert('error loading files');
+                }
+            });
+        }
     });
 </script>
 </html>

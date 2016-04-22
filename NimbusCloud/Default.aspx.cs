@@ -45,15 +45,16 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getNavTable()
+    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableRoot()
     {
         Navigation navigator = new Navigation(service);
         return navigator.Navigate("root");
     }
 
-    //loads nav data on click
-    protected void DriveButton_Click(object sender, EventArgs e)
+    [WebMethod]
+    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableFolder(string Id)
     {
-        getNavTable();
+        Navigation navigator = new Navigation(service);
+        return navigator.Navigate(Id);
     }
 }
