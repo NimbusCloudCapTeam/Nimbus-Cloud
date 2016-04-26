@@ -236,6 +236,7 @@
         $('#accountNameTextBox').val("")
     })
 
+    //navigation scripts--------------------------------------------------------
     $('#googleRootBtn').on('click', function () {
         $.ajax({
             type: 'POST',
@@ -248,28 +249,27 @@
                 writeTable();
             },
             error: function () {
-                alert('error loading files');
+                console.log('error loading root files');
             }
         });
     });
 
     $('#navTable').on('click', '.googleNavBtn', function () {
-        console.log(getType($(this).data('i')));
-        if (getType($(this).data('i')) == 'vnd.google-apps.folder') {
-            console.log(getId($(this).data('i')));
+        if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
             $.ajax({
                 type: 'POST',
                 url: 'Default.aspx/getNavTableFolder',
-                data: getId($(this).data('i')),
+                data: JSON.stringify({ id: getId($(this).data('i')) }),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (files) {
                     setTable(files);
                     writeTable();
                 },
-                error: function () {
-                    alert('error loading files');
-                }
+                error: function (navError) {
+                    console.log('error loading folder files');
+                },
+                async: false
             });
         } else {
             writeTable();
@@ -292,7 +292,7 @@
             row.append('<td><button class="googleNavBtn" data-i="' + i + '">select</button></td>');
             row.append('<td>' + file.Name + '</td>');
             row.append('<td>' + dateStr + '</td>');
-            row.append('<td>' + file.MimeType.substr(12) + '</td>');
+            row.append('<td>' + file.MimeType + '</td>');
             row.append('<td>' + file.Size + '</td>');
 
             outNavTable.append(row);
@@ -303,7 +303,7 @@
     }
 
     function getType(i) {
-        return navTable[i].MimeType.substr(12);
+        return navTable[i].MimeType;
     }
 
     function getId(i) {

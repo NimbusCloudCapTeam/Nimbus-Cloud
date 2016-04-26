@@ -52,9 +52,9 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableFolder(string Id)
+    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableFolder(string id)
     {
         Navigation navigator = new Navigation(service);
-        return navigator.Navigate(Id);
+        return navigator.Navigate(id);
     }
 }
