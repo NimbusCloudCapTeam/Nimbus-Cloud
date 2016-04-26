@@ -237,6 +237,8 @@
     })
 
     //navigation scripts--------------------------------------------------------
+    var navTable = null;
+
     $('#googleRootBtn').on('click', function () {
         $.ajax({
             type: 'POST',
@@ -254,7 +256,11 @@
         });
     });
 
-    $('#navTable').on('click', '.googleNavBtn', function () {
+    $('#navTable').on('mouseenter mouseleave', 'tbody tr', function () {
+        $(this).toggleClass('active');
+    });
+
+    $('#navTable').on('click', 'tbody tr', function () {
         if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
             $.ajax({
                 type: 'POST',
@@ -276,7 +282,6 @@
         }
     });
 
-    var navTable = null;
     function setTable(files) {
         navTable = files.d;
     }
@@ -285,11 +290,11 @@
         var outNavTable = $('<tbody></tbody>');
 
         $.each(navTable, function (i, file) {
-            var row = $('<tr></tr>');
+            var row = $('<tr data-i="' + i + '"></tr>');
             var date = new Date(parseInt(file.ModifiedTime.substr(6)));
             var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 
-            row.append('<td><button class="googleNavBtn" data-i="' + i + '">select</button></td>');
+            row.append('<td> </td>');
             row.append('<td>' + file.Name + '</td>');
             row.append('<td>' + dateStr + '</td>');
             row.append('<td>' + file.MimeType + '</td>');
@@ -298,7 +303,7 @@
             outNavTable.append(row);
         });
 
-        $('#navTable tbody').empty();
+        $('#navTable tbody').remove();
         $('#navTable').append(outNavTable);
     }
 
