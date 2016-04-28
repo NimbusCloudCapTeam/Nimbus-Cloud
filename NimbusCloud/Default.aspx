@@ -261,6 +261,11 @@
     });
 
     $('#navTable').on('click', 'tbody tr', function () {
+        $(this).toggleClass('info');
+        $(this).siblings('tr').removeClass('info');
+    });
+
+    $('#navTable').on('dblclick', 'tbody tr', function () {
         if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
             $.ajax({
                 type: 'POST',
