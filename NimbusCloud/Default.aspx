@@ -289,6 +289,21 @@
 
     function setTable(files) {
         navTable = files.d;
+        
+        navTable.sort(function (a, b) {
+            if (a.MimeType == 'application/vnd.google-apps.folder' && b.MimeType != 'application/vnd.google-apps.folder')
+                return -1;
+            else if (a.MimeType != 'application/vnd.google-apps.folder' && b.MimeType == 'application/vnd.google-apps.folder')
+                return 1;
+            else if (a.Name.toLowerCase() < b.Name.toLowerCase())
+                return -1;
+            else if (a.Name.toLowerCase() > b.Name.toLowerCase())
+                return 1;
+            else
+                return 0;
+        });
+
+
     }
 
     function writeTable() {
