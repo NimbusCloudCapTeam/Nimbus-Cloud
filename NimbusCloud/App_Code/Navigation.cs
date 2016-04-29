@@ -17,7 +17,7 @@ public class Navigation
 
     public IList<File> Navigate(string parent)
     {
-        string search, s1 = "'", s2 = "' in parents";
+        string search, s1 = "'", s2 = "' in parents and trashed = false";
 
         search = s1 + parent + s2;
 
@@ -34,7 +34,7 @@ public class Navigation
         }
         else
         {
-            listRequest.Q = "'root' in parents";
+            listRequest.Q = "'root' in parents and trashed = false";
         }
 
         listRequest.Fields = "files(id,mimeType,modifiedTime,name,size),kind,nextPageToken";

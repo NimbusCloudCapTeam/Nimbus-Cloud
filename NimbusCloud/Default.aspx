@@ -91,6 +91,9 @@
 
 
             <div class="col-md-8"  style="background-color:white; min-height: 690px;">
+                <div style="min-height:15px"></div>
+                <button id="backBtn" type="button" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-chevron-left"></span> Back</button>
                 <table class="table" id="navTable">
                   <thead>
                     <tr>
@@ -238,8 +241,12 @@
 
     //navigation scripts--------------------------------------------------------
     var navTable = null;
+    var navPath = [];
+    var navParent = null;
 
     $('#googleRootBtn').on('click', function () {
+        navParent = "root";
+
         $.ajax({
             type: 'POST',
             url: 'Default.aspx/getNavTableRoot',
@@ -267,6 +274,10 @@
 
     $('#navTable').on('dblclick', 'tbody tr', function () {
         if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
+            navPath.push(navParent);
+
+            navParent = getId($(this).data('i'));
+
             $.ajax({
                 type: 'POST',
                 url: 'Default.aspx/getNavTableFolder',
@@ -284,6 +295,28 @@
             });
         } else {
             writeTable();
+        }
+    });
+
+    $('#backBtn').on('click', function () {
+        if (navPath.length > 0) {
+            navParent = navPath.pop();
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getNavTableFolder',
+                data: JSON.stringify({ id: navParent }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (files) {
+                    setTable(files);
+                    writeTable();
+                },
+                error: function (navError) {
+                    console.log('error loading folder files on back');
+                    console.log(navError)
+                }
+            });
         }
     });
 
