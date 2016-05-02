@@ -5,26 +5,33 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
+using DropNet;
 
 public class Navigation
 {
     private DriveService service;
+    private DropNetClient dropClient;
 
     public Navigation(DriveService service)
     {
         this.service = service;
     }
 
-    public IList<File> Navigate(string parent)
+    public Navigation(DropNetClient dropClient)
+    {
+        this.dropClient = dropClient;
+    }
+
+    public IList<File> DriveNavigate(string parent)
     {
         string search, s1 = "'", s2 = "' in parents and trashed = false";
 
         search = s1 + parent + s2;
 
-        return GetFiles(search);
+        return GetDriveFiles(search);
     }
 
-    private IList<File> GetFiles(string search)
+    private IList<File> GetDriveFiles(string search)
     {
         FilesResource.ListRequest listRequest = service.Files.List();
 
@@ -42,5 +49,15 @@ public class Navigation
         IList<File> files = listRequest.Execute().Files;
 
         return files;
+    }
+
+    public DropNet.Models.MetaData DropNavigate()
+    {
+        return GetDropFiles();
+    }
+
+    private DropNet.Models.MetaData GetDropFiles()
+    {
+        return dropClient.GetMetaData(null, true);
     }
 }

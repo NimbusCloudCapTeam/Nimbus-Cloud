@@ -68,6 +68,7 @@
                         <a class="nav-link" href="#dropbox" style="color:white" role="tab" data-toggle="tab" id="dropboxPan">DropBox</a>
                       </li>
                       <li class="nav-item" id="dropboxAccount" style="color:white;margin-left:25px">
+                          <li id="dropBoxRootBtn">DropBox</li>
                       </li>   
                       <li class="nav-item">
                         <a class="nav-link" href="#googleDrive" style="color:white" role="tab" data-toggle="tab" id="googlePan">Google Drive</a>
@@ -249,7 +250,7 @@
 
         $.ajax({
             type: 'POST',
-            url: 'Default.aspx/getNavTableRoot',
+            url: 'Default.aspx/getDriveRoot',
             data: '{}',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
@@ -262,6 +263,28 @@
             }
         });
     });
+
+    //WORK IN PROGRESS-----------------------------------------------
+    $('#dropBoxRootBtn').on('click', function () {
+        //navParent = "root";
+
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getDropRoot',
+            data: '{}',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                //setTable(files);
+                //writeTable();
+                console.log(files);
+            },
+            error: function () {
+                console.log('error loading root files');
+            }
+        });
+    });
+    //WORK IN PROGRESS-----------------------------------------------
 
     $('#navTable').on('mouseenter mouseleave', 'tbody tr', function () {
         $(this).toggleClass('active');
@@ -280,7 +303,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'Default.aspx/getNavTableFolder',
+                url: 'Default.aspx/getDriveFolder',
                 data: JSON.stringify({ id: getId($(this).data('i')) }),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
@@ -304,7 +327,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'Default.aspx/getNavTableFolder',
+                url: 'Default.aspx/getDriveFolder',
                 data: JSON.stringify({ id: navParent }),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',

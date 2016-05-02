@@ -16,6 +16,7 @@ using System.Web.Services;
 using System.Web.Script.Serialization;
 using Google.Apis.Plus.v1;
 using System.Text;
+using DropNet;
 
 public partial class _Default : System.Web.UI.Page 
 {
@@ -23,7 +24,8 @@ public partial class _Default : System.Web.UI.Page
     {
     }
 
-    private static DriveService service;
+    private static DriveService driveService;
+    private static DropNetClient dropClient;
 
     [WebMethod]
     public static string setAuthorization(string accountName, string accountType) {
@@ -39,22 +41,29 @@ public partial class _Default : System.Web.UI.Page
         AccountControl account = new AccountControl();
         account.addAccount(accountType, accountName);
 
-        service = authenticate.getService();
+        driveService = authenticate.getService();
 
         return "0";
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableRoot()
+    public static IList<Google.Apis.Drive.v3.Data.File> getDriveRoot()
     {
-        Navigation navigator = new Navigation(service);
-        return navigator.Navigate("root");
+        Navigation navigator = new Navigation(driveService);
+        return navigator.DriveNavigate("root");
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getNavTableFolder(string id)
+    public static IList<Google.Apis.Drive.v3.Data.File> getDriveFolder(string id)
     {
-        Navigation navigator = new Navigation(service);
-        return navigator.Navigate(id);
+        Navigation navigator = new Navigation(driveService);
+        return navigator.DriveNavigate(id);
+    }
+
+    [WebMethod]
+    public static DropNet.Models.MetaData getDropRoot()
+    {
+        Navigation navigator = new Navigation(dropClient);
+        return navigator.DropNavigate();
     }
 }

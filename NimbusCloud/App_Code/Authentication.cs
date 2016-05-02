@@ -3,27 +3,12 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
-using System.Web.Mvc;
 using DropNet;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using RestSharp;
-using System.Text;
-using RestSharp.Contrib;
-using OAuth;
-using System.Net;
-using System.Security.Policy;
-using DropboxRestAPI.Services;
-using Owin.Security.Providers.Dropbox;
-using AppLimit.CloudComputing.SharpBox.StorageProvider.DropBox;
-using AppLimit.CloudComputing.SharpBox.StorageProvider;
-using AppLimit.CloudComputing.SharpBox;
-using System.Collections.Generic;
 
 /// <summary>
 /// Summary description for Class1
@@ -33,6 +18,7 @@ public class Authentication
     private const string ConsumerKey = "your application key";
     private const string ConsumerSecret = "your application secret";
     private DriveService service;
+    private DropNetClient dropClient;
     DropNet.Models.UserLogin accessToken;
 
 
@@ -104,9 +90,9 @@ public class Authentication
     public void ConnectToDropbox()
     {
 
-        DropNetClient client = new DropNetClient("31wzgplwlbyqmvv", "jewcdovpvhmqrb1");
-        client.GetToken();
-        var url = client.BuildAuthorizeUrl();
+        dropClient = new DropNetClient("31wzgplwlbyqmvv", "jewcdovpvhmqrb1");
+        dropClient.GetToken();
+        var url = dropClient.BuildAuthorizeUrl();
 
         // Prompt for user to auth
 
@@ -118,7 +104,7 @@ public class Authentication
         while (!Cont) { 
             try
             {
-                accessToken = client.GetAccessToken();
+                accessToken = dropClient.GetAccessToken();
                 if (accessToken != null) {
                     Cont = true;
                 }
@@ -144,5 +130,9 @@ public class Authentication
         File.WriteAllText(path, json);
 
     }
- 
+    
+    public DropNetClient getDropClient()
+    {
+        return dropClient;
+    }
 }
