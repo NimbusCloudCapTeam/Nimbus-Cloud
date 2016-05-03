@@ -23,7 +23,7 @@ public class AccountControl
     public string getUserId() { return returnString;}
 
     public void addAccount(string accountType, string accountName) {
-        string path = "C:/Users/Matthew/Desktop/Tester/NimbusCloud/accounts.json";
+        string path = "C:/Users/Matthew/Desktop/NimbusCloudProject/Nimbus-Cloud-master/4_23_2016_RootDisplayForEveryAccount/NimbusCloud/accounts.json";
         string jsonData = File.ReadAllText(path);
         string fileStorage = accountType + "." + accountName + ".Auth.Store";
         string location = accountType + "." + accountName + ".Auth.Store";
@@ -39,20 +39,7 @@ public class AccountControl
         File.WriteAllText(path, convertedJson);
 
     }
-    /*public Item getGoogleAccounts(string accountType, string accountName) {
-        List<string> accounts;
-        using (StreamReader r = new StreamReader("accounts.json"))
-        {
-            string json = r.ReadToEnd();
-            List<Item> items = JsonConvert.DeserializeObject<List<Item>>(json);
-            foreach (var i in items) {
-                var acc = items.;
-                if (acc = "Google") {
-                }
-            }
-        }
-        return items;*/
-    //}
+
     class Account
     {
         public string AccountType { get; set; }
@@ -60,7 +47,6 @@ public class AccountControl
         public string Location { get; set; }
     }
 
-    //public string getDropBoxAccounts() { }
 
     public void removeAccount(string accountType, string accountName) { }
 

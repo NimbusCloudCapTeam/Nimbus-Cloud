@@ -17,6 +17,7 @@ using System.Web.Script.Serialization;
 using Google.Apis.Plus.v1;
 using System.Text;
 using Newtonsoft.Json;
+using DropNet;
 
 public partial class _Default : System.Web.UI.Page 
 {
@@ -25,22 +26,28 @@ public partial class _Default : System.Web.UI.Page
     }
 
     private static DriveService service;
+    private static DropNetClient client;
 
     [WebMethod]
     public static string setAuthorization(string accountName, string accountType) {
         Authentication authenticate = new Authentication();
         //AccountControl account = new AccountControl();
         //bool tryAuth = false;
-        try
-        {
-            authenticate.setAuth(accountType, accountName);
-            //tryAuth = true;
-        }
-        catch (Exception e) { }
+
+        if (accountType == "Google Drive") { 
+            authenticate.setGoogleAuth(accountType, accountName);
+            service = authenticate.getGoogleService();
+         }
+        if (accountType == "DropBox")
+            {
+                authenticate.setDropboxAuth(accountType, accountName);
+                client = authenticate.getDropboxService();
+            }
+
         AccountControl account = new AccountControl();
         account.addAccount(accountType, accountName);
 
-        service = authenticate.getService();
+
 
         return "0";
     }
@@ -59,13 +66,22 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static string setService(string accAddress)
+    public static string setService(string accAddress, string accountType)
     {
 
         Authentication authenticate = new Authentication();
         string account = JsonConvert.DeserializeObject<string>(accAddress);
-        authenticate.getAuth(account);
-        service = authenticate.getService();
+
+        if (accountType == "Google Drive")
+        {
+            authenticate.getGoogleAuth(account);
+            service = authenticate.getGoogleService();
+        }
+        if (accountType == "DropBox")
+        {
+            authenticate.getDropboxAuth(account);
+            client = authenticate.getDropboxService();
+        }
         return "";
     }
 }

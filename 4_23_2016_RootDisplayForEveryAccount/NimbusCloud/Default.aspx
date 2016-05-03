@@ -160,6 +160,7 @@
     </form>
 </body>
 <script>
+    var openedNav;
     $('#accountMenu a').click(function (e) {
         e.preventDefault()
         if (this.id == "boxPan") {
@@ -169,16 +170,20 @@
             $('#onedriveAccount').empty();
         }
         if (this.id == "dropboxPan") {
+            $('#googleAccount').empty();
             $('#boxAccount').empty();
-            $('#dropboxAccount').html("<li>- Account1</li><li>- account2</li>");
-            $('#googleAccount').css('display', 'none');
-            $('#onedriveAccount').empty();
+            $('#dropboxAccount').empty();
+            $('#dropboxAccount').css('display', 'block');
+            setDropBoxAccounts();
+            openedNav = "DropBox";
         }
         if (this.id == "googlePan") {
             $('#boxAccount').empty();
             $('#googleAccount').empty();
+            $('#dropboxAccount').empty();
             $('#googleAccount').css('display', 'block');
             setGoogleAccounts();
+            openedNav = "Google Drive";
         }
         if (this.id == "onedrivePan") {
            $('#boxAccount').empty();
@@ -194,16 +199,14 @@
         $(".dropdown-menu li a").click(function () {
             $("#accountType").html('<b>Selected Account: </b> ' + $(this).text());
             accountType = $(this).text();
+            addedType = $(this).text();
+            
         });
 
     });
-    var getResult ='';
-    function useReturnData(data) {
-        getResult = data;
-        if (getResult = "true") {
-            $('#boxAccount').append(('<li> ' + $('#accountNameTextBox').val()) + '</li>');
-        }
-    };
+    var getResult = '';
+    var addedType = "";
+
     //modal buttons
     $("#closeAddAccBtn").click(function () {
     });
@@ -218,10 +221,13 @@
             dataType: 'json',
             success: function (result) {
                 var json = $.parseJSON(result.d);
-                useReturnData(json);
-                setGoogleAccounts()
-                // alert(getResult);
-                alert("success");
+                if (addedType === "Google Drive") {
+                    setGoogleAccounts()
+                }
+                if (addedType === "DropBox") {
+                    setDropBoxAccounts();
+                }
+
             },
             error: function (result) {
                 alert("fail");
@@ -270,7 +276,7 @@
 
     var accData;
     $(document).ready(function () {
-        setGoogleAccounts();
+
     });
 
 
@@ -298,6 +304,33 @@
                     if (accType === "\"Google Drive\"") {
                         $('#googleAccount').prepend("<a  style=\"color:white\" value=\"" + value.AccountName + "\" onclick=\"clickedAccount(this)\" id=\"" + value.AccountName + "\" >" + value.AccountName + "</a>");
                         addGoogleList(JSON.stringify(value.AccountName), JSON.stringify(value.Location));
+                    }
+
+                });
+            }
+        });
+    }
+
+    var dropboxList = [];
+    function addDropboxList(accN, accL) {
+        dropboxList.push({
+            accName: accN,
+            accLocal: accL
+        });
+    }
+    function setDropBoxAccounts() {
+        $.ajax({
+            url: 'accounts.json',
+            type: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                setData(data);
+                $(data).each(function (index, value) {
+                    accType = JSON.stringify(value.AccountType);
+                    if (accType === "\"DropBox\"") {
+                        $('#dropboxAccount').prepend("<a  style=\"color:white\" value=\"" + value.AccountName + "\" onclick=\"clickedAccount(this)\" id=\"" + value.AccountName + "\" >" + value.AccountName + "</a>");
+                        addDropboxList(JSON.stringify(value.AccountName), JSON.stringify(value.Location));
                     }
 
                 });
@@ -332,62 +365,126 @@
     function clickedAccount(e) {
         var idClicked = e.id;
         var address;
-        for (var i in googleList) {
-            if ("\"" + idClicked + "\"" === googleList[i].accName) {
-                var local = googleList[i].accLocal;
-                //alert(local);
-                $.ajax({
-                    type: "POST",
-                    url: "Default.aspx/setService",
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({ accAddress: local }),
-                    dataType: 'json',
-                    success: function (result) {
+        if (openedNav === "Google Drive") {
+            for (var i in googleList) {
+                if ("\"" + idClicked + "\"" === googleList[i].accName) {
+                    var local = googleList[i].accLocal;
+                    var accType = openedNav;
 
-                        $.ajax({
-                            type: 'POST',
-                            url: 'Default.aspx/getNavTable',
-                            data: '{}',
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: 'json',
-                            success: function (files) {
-                                $('#tableBody').empty();
-                                //append to table body
-                                $.each(files.d, function (i, file) {
-                                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                    $.ajax({
+                        type: "POST",
+                        url: "Default.aspx/setService",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ accAddress: local, accountType: accType }),
+                        dataType: 'json',
+                        success: function (result) {
 
-                                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
-                                    $('#tableBody').append('<td> </td>');
-                                    $('#tableBody').append('<td>' + file.Name + '</td>');
-                                    $('#tableBody').append('<td>' + dateStr + '</td>');
-                                    $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
-                                    $('#tableBody').append('<td>' + file.Size + '</td>');
-                                    $('#tableBody').append('</tr>');
-                                });
-                            },
-                            error: function () {
-                                alert('error loading files');
-                            }
-                        });
-                        // var json = $.parseJSON(result.d);
+                            $.ajax({
+                                type: 'POST',
+                                url: 'Default.aspx/getNavTable',
+                                data: '{}',
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                success: function (files) {
+                                    $('#tableBody').empty();
+                                    //append to table body
+                                    $.each(files.d, function (i, file) {
+                                        var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                                        var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 
-                       // alert("Success Service");
-                        //$('#googleAccount').empty();
-                        //setGoogleAccounts();
+                                        $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                                        $('#tableBody').append('<td> </td>');
+                                        $('#tableBody').append('<td>' + file.Name + '</td>');
+                                        $('#tableBody').append('<td>' + dateStr + '</td>');
+                                        $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
+                                        $('#tableBody').append('<td>' + file.Size + '</td>');
+                                        $('#tableBody').append('</tr>');
+                                    });
+                                },
+                                error: function () {
+                                    alert('error loading files');
+                                }
+                            });
+                            // var json = $.parseJSON(result.d);
 
-                    },
-                    error: function (result) {
-                        alert("Failed Service");
+                            // alert("Success Service");
+                            //$('#googleAccount').empty();
+                            //setGoogleAccounts();
 
-                    }
-                });
+                        },
+                        error: function (result) {
+                            alert("Failed Service");
+
+                        }
+                    });
 
 
 
-                return false;
+                    return false;
+                }
+
             }
+        }
 
+        if (openedNav === "DropBox") {
+            for (var i in dropboxList) {
+                if ("\"" + idClicked + "\"" === dropboxList[i].accName) {
+                    var local = dropboxList[i].accLocal;
+                    var accType = openedNav;
+                    alert(local);
+                    $.ajax({
+                        type: "POST",
+                        url: "Default.aspx/setService",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ accAddress: local, accountType: accType }),
+                        dataType: 'json',
+                        success: function (result) {
+                            alert("Account Selected");
+                           /* $.ajax({
+                                type: 'POST',
+                                url: 'Default.aspx/getNavTable',
+                                data: '{}',
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                success: function (files) {
+                                    $('#tableBody').empty();
+                                    //append to table body
+                                    $.each(files.d, function (i, file) {
+                                        var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                                        var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                                        $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
+                                        $('#tableBody').append('<td> </td>');
+                                        $('#tableBody').append('<td>' + file.Name + '</td>');
+                                        $('#tableBody').append('<td>' + dateStr + '</td>');
+                                        $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
+                                        $('#tableBody').append('<td>' + file.Size + '</td>');
+                                        $('#tableBody').append('</tr>');
+                                    });
+                                },
+                                error: function () {
+                                    alert('error loading files');
+                                }
+                            });*/
+                            // var json = $.parseJSON(result.d);
+
+                            // alert("Success Service");
+                            //$('#googleAccount').empty();
+                            //setGoogleAccounts();
+
+                        },
+                        error: function (result) {
+                            alert("Failed Service");
+
+                        }
+                    });
+
+
+
+                    return false;
+                }
+
+            }
         }
 
     }
