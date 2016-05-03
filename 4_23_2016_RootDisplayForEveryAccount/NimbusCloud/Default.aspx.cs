@@ -53,13 +53,6 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getDriveRoot()
-    {
-        Navigation navigator = new Navigation(service);
-        return navigator.DriveNavigate("root");
-    }
-
-    [WebMethod]
     public static string setService(string accAddress, string accountType)
     {
 
@@ -87,9 +80,9 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static DropNet.Models.MetaData getDropRoot()
+    public static DropNet.Models.MetaData getDropFolder(string path)
     {
         Navigation navigator = new Navigation(client);
-        return navigator.DropNavigate();
+        return navigator.DropNavigate(path);
     }
 }

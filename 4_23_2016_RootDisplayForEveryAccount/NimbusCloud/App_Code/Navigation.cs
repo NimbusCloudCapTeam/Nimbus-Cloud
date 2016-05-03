@@ -24,11 +24,15 @@ public class Navigation
 
     public IList<File> DriveNavigate(string parent)
     {
-        string search, s1 = "'", s2 = "' in parents and trashed = false";
+        string s1 = "'", s2 = "' in parents and trashed = false";
+        FilesResource.ListRequest listRequest = service.Files.List();
 
-        search = s1 + parent + s2;
+        listRequest.Q = s1 + parent + s2;        
+        listRequest.Fields = "files(id,mimeType,modifiedTime,name,size),kind,nextPageToken";
 
-        return GetDriveFiles(search);
+        IList<File> files = listRequest.Execute().Files;
+
+        return files;
     }
 
     private IList<File> GetDriveFiles(string search)
@@ -51,13 +55,8 @@ public class Navigation
         return files;
     }
 
-    public DropNet.Models.MetaData DropNavigate()
+    public DropNet.Models.MetaData DropNavigate(string path)
     {
-        return GetDropFiles();
-    }
-
-    private DropNet.Models.MetaData GetDropFiles()
-    {
-        return dropClient.GetMetaData(null, true);
+        return dropClient.GetMetaData(path, null, true, false);
     }
 }
