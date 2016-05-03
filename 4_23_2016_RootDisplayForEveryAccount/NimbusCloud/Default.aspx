@@ -243,37 +243,6 @@
         $('#accountNameTextBox').val("")
     })
 
-    
-
-    $('#fileObj').on('click', function () {
-        $.ajax({
-            type: 'POST',
-            url: 'Default.aspx/getNavTable',
-            data: $('#fileObj').data('fileId'),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (files) {
-                $('#tableBody').empty();
-                //append to table body
-                $.each(files.d, function (i, file) {
-                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                    $('#tableBody').append('<tr id="fileObj" data-fileId="' + file.Id + '">');
-                    $('#tableBody').append('<td> </td>');
-                    $('#tableBody').append('<td>' + file.Name + '</td>');
-                    $('#tableBody').append('<td>' + dateStr + '</td>');
-                    $('#tableBody').append('<td>' + file.MimeType.substr(12) + '</td>');
-                    $('#tableBody').append('<td>' + file.Size + '</td>');
-                    $('#tableBody').append('</tr>');
-                });
-            },
-            error: function () {
-                alert('error loading files');
-            }
-        });
-    });
-
     var accData;
     $(document).ready(function () {
 
@@ -378,8 +347,8 @@
                         data: JSON.stringify({ accAddress: local, accountType: accType }),
                         dataType: 'json',
                         success: function (result) {
-
-                            $.ajax({
+                            getDriveRoot();
+                            /*$.ajax({
                                 type: 'POST',
                                 url: 'Default.aspx/getNavTable',
                                 data: '{}',
@@ -404,7 +373,7 @@
                                 error: function () {
                                     alert('error loading files');
                                 }
-                            });
+                            });*/
                             // var json = $.parseJSON(result.d);
 
                             // alert("Success Service");
@@ -489,5 +458,161 @@
 
     }
 
+    //navigation scripts--------------------------------------------------------
+    var navTable = null;
+    var navPath = [];
+    var navParent = null;
+
+    function getDriveRoot() {
+        navParent = "root";
+
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getDriveRoot',
+            data: '{}',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                setTable(files);
+                writeTable();
+            },
+            error: function () {
+                console.log('error loading root files');
+            }
+        });
+    }
+
+    //WORK IN PROGRESS-----------------------------------------------
+    function getDropRoot() {
+        //navParent = "root";
+
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getDropRoot',
+            data: '{}',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                //setTable(files);
+                //writeTable();
+                console.log(files);
+            },
+            error: function () {
+                console.log('error loading root files');
+            }
+        });
+    }
+    //WORK IN PROGRESS-----------------------------------------------
+
+    $('#navTable').on('mouseenter mouseleave', 'tbody tr', function () {
+        $(this).toggleClass('active');
+    });
+
+    $('#navTable').on('click', 'tbody tr', function () {
+        $(this).toggleClass('info');
+        $(this).siblings('tr').removeClass('info');
+    });
+
+    //will need to allow for both services
+    $('#navTable').on('dblclick', 'tbody tr', function () {
+        if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
+            navPath.push(navParent);
+
+            navParent = getId($(this).data('i'));
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getDriveFolder',
+                data: JSON.stringify({ id: getId($(this).data('i')) }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (files) {
+                    setTable(files);
+                    writeTable();
+                },
+                error: function (navError) {
+                    console.log('error loading folder files');
+                },
+                async: false
+            });
+        } else {
+            writeTable();
+        }
+    });
+
+    //may need to allow for both services
+    $('#backBtn').on('click', function () {
+        if (navPath.length > 0) {
+            navParent = navPath.pop();
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getDriveFolder',
+                data: JSON.stringify({ id: navParent }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (files) {
+                    setTable(files);
+                    writeTable();
+                },
+                error: function (navError) {
+                    console.log('error loading folder files on back');
+                    console.log(navError)
+                }
+            });
+        }
+    });
+
+    //will need to allow for both services
+    function setTable(files) {
+        navTable = files.d;
+
+        navTable.sort(function (a, b) {
+            if (a.MimeType == 'application/vnd.google-apps.folder' && b.MimeType != 'application/vnd.google-apps.folder')
+                return -1;
+            else if (a.MimeType != 'application/vnd.google-apps.folder' && b.MimeType == 'application/vnd.google-apps.folder')
+                return 1;
+            else if (a.Name.toLowerCase() < b.Name.toLowerCase())
+                return -1;
+            else if (a.Name.toLowerCase() > b.Name.toLowerCase())
+                return 1;
+            else
+                return 0;
+        });
+
+
+    }
+
+    //may need to allow for both services
+    function writeTable() {
+        var outNavTable = $('<tbody></tbody>');
+
+        $.each(navTable, function (i, file) {
+            var row = $('<tr data-i="' + i + '"></tr>');
+            var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+            var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+            row.append('<td> </td>');
+            row.append('<td>' + file.Name + '</td>');
+            row.append('<td>' + dateStr + '</td>');
+            row.append('<td>' + file.MimeType + '</td>');
+            row.append('<td>' + file.Size + '</td>');
+
+            outNavTable.append(row);
+        });
+
+        $('#navTable tbody').remove();
+        $('#navTable').append(outNavTable);
+    }
+
+    //may need to allow for both services
+    function getType(i) {
+        return navTable[i].MimeType;
+    }
+
+    //may need to allow for both services
+    function getId(i) {
+        return navTable[i].Id;
+    }
 </script>
 </html>

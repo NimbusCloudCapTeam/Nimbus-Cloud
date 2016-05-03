@@ -53,16 +53,10 @@ public partial class _Default : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getNavTable()
+    public static IList<Google.Apis.Drive.v3.Data.File> getDriveRoot()
     {
         Navigation navigator = new Navigation(service);
-        return navigator.Navigate("root");
-    }
-
-    //loads nav data on click
-    protected void DriveButton_Click(object sender, EventArgs e)
-    {
-        getNavTable();
+        return navigator.DriveNavigate("root");
     }
 
     [WebMethod]
@@ -83,5 +77,19 @@ public partial class _Default : System.Web.UI.Page
             client = authenticate.getDropboxService();
         }
         return "";
+    }
+
+    [WebMethod]
+    public static IList<Google.Apis.Drive.v3.Data.File> getDriveFolder(string id)
+    {
+        Navigation navigator = new Navigation(service);
+        return navigator.DriveNavigate(id);
+    }
+
+    [WebMethod]
+    public static DropNet.Models.MetaData getDropRoot()
+    {
+        Navigation navigator = new Navigation(client);
+        return navigator.DropNavigate();
     }
 }
