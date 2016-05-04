@@ -85,4 +85,10 @@ public partial class _Default : System.Web.UI.Page
         Navigation navigator = new Navigation(client);
         return navigator.DropNavigate(path);
     }
+    [WebMethod]
+    public static string removeAccount(string accountName, string accountType) {
+        AccountControl account = new AccountControl();
+        account.removeAccount(accountName, accountType);
+        return "";
+    }
 }

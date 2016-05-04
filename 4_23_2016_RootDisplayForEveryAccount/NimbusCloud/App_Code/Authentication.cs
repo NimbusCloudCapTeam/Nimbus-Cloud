@@ -133,7 +133,7 @@ public class Authentication
     public void getDropboxAuth(string accLocal)
     {
         List<Account> accounts;
-        using (StreamReader r = new StreamReader("C:/Users/Matthew/Desktop/NimbusCloudProject/Nimbus-Cloud-master/4_23_2016_RootDisplayForEveryAccount/NimbusCloud/accounts.json"))
+        using (StreamReader r = new StreamReader("C:/Users/Matthew/Desktop/NimbusCloudProject/Nimbus-Cloud-master/NimbusCloud/accounts.json"))
         {
             string json = r.ReadToEnd();
             accounts = JsonConvert.DeserializeObject<List<Account>>(json);

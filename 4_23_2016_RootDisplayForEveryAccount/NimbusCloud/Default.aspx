@@ -53,7 +53,7 @@
                     <div style="min-height:20px"></div>
                     <center>
                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal">Add</button>
-                       <button type="button" class="btn btn-primary">Remove </button>
+                       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removeAccountModal">Remove </button>
                     </center>
                    <div style="min-height:20px"></div>
 
@@ -122,10 +122,9 @@
         </div>
         </div>
         <div class="container-fluid" style="background-color:#D9B310; min-height:10px;"></div>
-        <div id="addAccountModal" class="modal fade" role="dialog">
+         <!-- Modal content-->
+        <div id="addAccountModal" class="modal fade" role="dialog" >
           <div class="modal-dialog">
-
-            <!-- Modal content-->
             <div class="modal-content modal-sm">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -133,12 +132,12 @@
               </div>
               <div class="modal-body">
 
-                  <div class="dropdown" style="margin-bottom:5%">
+                  <div class="dropdown" style="margin-bottom:5%" >
                       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownAdd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                        Account Type
                         <span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" runat="server">
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" runat="server" id="addAccountDropDown">
                         <li><a href="#" id="boxAddWindow">Box</a></li>
                         <li><a href="#" id="dropboxAddWindow">DropBox</a></li>
                         <li><a href="#" id="googleAddWindow">Google Drive</a></li>
@@ -159,10 +158,58 @@
 
           </div>
         </div>
+
+        <div id="removeAccountModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content modal-sm">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remove Account</h4>
+              </div>
+              <div class="modal-body">
+
+                  <div class="dropdown" style="margin-bottom:5%">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownRemoveType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                       Account Type
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuRemoveType" runat="server" id="dropdownMenuRemoveType">
+                        <li><a href="#" id="boxRemoveWindow">Box</a></li>
+                        <li><a href="#" id="dropboxRemoveWindow">DropBox</a></li>
+                        <li><a href="#" id="googleRemoveWindow">Google Drive</a></li>
+                        <li><a href="#" id="onedriveRemoveWindow">Microsoft OneDrive</a></li>                     
+                      </ul>
+                      <div id="accountRemoveType" style="margin-top:10px"><b>Selected Type:</b> None</div>
+                   </div>
+
+                   <div class="dropdown" style="margin-bottom:5%">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownRemoveName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                       Account Type
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" id="dropdownMenuRemoveName">
+                 
+                      </ul>
+                      <div id="accountRemoveName" style="margin-top:10px"><b>Selected Type:</b> None</div>
+                   </div>
+
+                  
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-dismiss="modal" id="submitRemoveAccBtn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="closeRemoveAccBtn">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
     </form>
 </body>
 <script>
     var openedNav;
+    var removeName;
+    var removeType;
     $('#accountMenu a').click(function (e) {
         e.preventDefault()
         if (this.id == "boxPan") {
@@ -198,18 +245,68 @@
     var accountType;
     $(function () {
 
-        $(".dropdown-menu li a").click(function () {
+        $("#addAccountDropDown li a").click(function () {
             $("#accountType").html('<b>Selected Account: </b> ' + $(this).text());
             accountType = $(this).text();
             addedType = $(this).text();
             
         });
 
+        $('#dropdownMenuRemoveName').on('click', 'li', function () {
+            $("#accountRemoveName").html('<b>Selected Type: </b> ' + $(this).text());
+            removeName = $(this).text();
+        });
+
+        $("#dropdownMenuRemoveType li a").click(function () {
+            $("#accountRemoveType").html('<b>Selected Type: </b> ' + $(this).text());
+            removeType = $(this).text();
+            $("#dropdownMenuRemoveName").empty();
+            if ($(this).text() === "DropBox") {
+                for (var i in dropboxList) {
+                    var name = dropboxList[i].accName;
+                    name = name.replace('"', "");
+                    name = name.replace('"', "");
+                    $("#dropdownMenuRemoveName").append("<li><a href=\"#\" id=\"" + name + "\">" + name + "</a></li>");
+                }
+            }
+            if ($(this).text() === "Google Drive") {
+                for (var i in googleList) {
+                    var name = googleList[i].accName;
+                    name = name.replace('"', "");
+                    name = name.replace('"', "");
+                    $("#dropdownMenuRemoveName").append("<li><a href=\"#\" id=\"" + name + "\">" + name + "</a></li>");
+                }
+            }
+        });
+       
+
     });
+
+
+
     var getResult = '';
     var addedType = "";
 
     //modal buttons
+    $("#submitRemoveAccBtn").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "Default.aspx/removeAccount",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ accountName: removeName, accountType: removeType }),
+            dataType: 'json',
+            success: function (result) {
+                alert("Account Successfully Removed");
+
+            },
+            error: function (result) {
+                alert("Failed to Remove Account");
+            }
+        });
+
+
+
+    });
     $("#closeAddAccBtn").click(function () {
     });
     $("#submitAddAccBtn").click(function () {
@@ -247,7 +344,8 @@
 
     var accData;
     $(document).ready(function () {
-
+        setDropBoxAccounts();
+        setGoogleAccounts();
     });
 
 
@@ -377,7 +475,7 @@
                 if ("\"" + idClicked + "\"" === dropboxList[i].accName) {
                     var local = dropboxList[i].accLocal;
                     var accType = openedNav;
-                    alert(local);
+                    //alert(local);
                     $.ajax({
                         type: "POST",
                         url: "Default.aspx/setService",
