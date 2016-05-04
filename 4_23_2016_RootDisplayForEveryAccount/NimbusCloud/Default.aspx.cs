@@ -91,4 +91,18 @@ public partial class _Default : System.Web.UI.Page
         account.removeAccount(accountName, accountType);
         return "";
     }
+
+    [WebMethod]
+    public static IList<Google.Apis.Drive.v3.Data.File> getDriveSearch(string search)
+    {
+        Navigation navigator = new Navigation(service);
+        return navigator.DriveSearch(search);
+    }
+
+    [WebMethod]
+    public static List<DropNet.Models.MetaData> getDropSearch(string search)
+    {
+        Navigation navigator = new Navigation(client);
+        return navigator.DropSearch(search);
+    }
 }

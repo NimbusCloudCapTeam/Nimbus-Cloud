@@ -746,5 +746,16 @@
     function getPath(i) {
         return navTable[i].Path;
     }
+
+    //Search scripts--------------------------------------------------------
+    function search(searchStr, accType) {
+        //set account
+        if (accType === "\"Google Drive\"")
+            ;//call google search
+        else if (accType === "\"DropBox\"")
+                ;//call drop search
+        else
+            ;//log accType error
+    }
 </script>
 </html>
