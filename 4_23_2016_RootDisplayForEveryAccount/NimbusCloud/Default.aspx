@@ -23,9 +23,9 @@
         <div class="container-fluid" style="background-color:#0B3C5D;">
             <nav class="navbar navbar-dark" style="background-color:#1D2731; margin-top:20px" >
                 <div class="col-md-3" style="margin-top:8px; margin-left:15%">
-                     <input type="text" class="form-control" placeholder="Search"/>
+                     <input type="text" class="form-control" placeholder="Search" id="searchInput"/>
                </div>  
-                <button type="submit" class="btn btn-default" style="margin-top:8px">Submit</button>
+                <button type="button" class="btn btn-default" style="margin-top:8px" id="searchBtn">Submit</button>
 
                 <ul class="nav navbar-nav navbar-right" style="margin-right:1.5%">
                     <li class="nav-item active">
@@ -748,14 +748,96 @@
     }
 
     //Search scripts--------------------------------------------------------
-    function search(searchStr, accType) {
-        //set account
-        if (accType === "\"Google Drive\"")
-            ;//call google search
-        else if (accType === "\"DropBox\"")
-                ;//call drop search
-        else
-            ;//log accType error
+    $('#searchBtn').on('click', function () {
+        var searchStr = searchInput.val();
+
+        $.ajax({
+            url: 'Scripts/accounts.json',
+            type: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (accounts) {
+                $(accoutns).each(function (i, account) {
+                    //TODO----------------------------------------------------
+                    accType = JSON.stringify(account.AccountType);
+                    accLoc = JSON.stringify(account.Location);
+
+                    //TODO: return
+                    search(searchStr, accType, accLoc);
+
+                    //TODO: add files to list
+                });
+                //TODO: write list to navTable
+            },
+            error: function (navError) {
+                console.log('error getting accounts');
+                console.log(navError);
+            }
+        });
+    });
+
+    function search(searchStr, accType, accLoc) {
+        //sets account
+        $.ajax({
+            type: "POST",
+            url: "Default.aspx/setService",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ accAddress: accLoc, accountType: accType }),
+            dataType: 'json',
+            success: function (result) {
+                var files = null;
+
+                if (accType === "\"Google Drive\"")
+                    files = searchDrive(searchStr);
+                    //TODO: normalize
+                else if (accType === "\"DropBox\"")
+                    files = searchDrop(searchStr);
+                    //TODO: normalize
+                else
+                    console.log("Search: Unknown accType");
+
+                return files;
+            },
+            error: function (result) {
+                console.log('error on preperation of loading folder files on search');
+                console.log(navError);
+
+            }
+        });
+    }
+
+    function searchDrive(searchStr) {
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getDriveSearch',
+            data: JSON.stringify({ search: searchStr }),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                return files;
+            },
+            error: function (navError) {
+                console.log('error loading folder files on search');
+                console.log(navError);
+            }
+        });
+    }
+
+    function searchDrop(searchStr) {
+        $.ajax({
+            type: 'POST',
+            url: 'Default.aspx/getDropSearch',
+            data: JSON.stringify({ search: searchStr }),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (files) {
+                return files;
+            },
+            error: function (navError) {
+                console.log('error loading folder files on search');
+                console.log(navError);
+            }
+        });
     }
 </script>
 </html>
