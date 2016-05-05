@@ -93,6 +93,8 @@
                 <div style="min-height:15px"></div>
                 <button id="backBtn" type="button" class="btn btn-primary btn-sm">
                     <span class="glyphicon glyphicon-chevron-left"></span> Back</button>
+                <button id="clearBtn" type="button" class="btn btn-primary btn-sm" style="display:none">
+                    <span class="glyphicon glyphicon-remove"></span> Clear</button>
                 <table class="table" id="navTable">
                   <thead>
                     <tr>
@@ -509,7 +511,7 @@
 
     }
 
-    //navigation scripts--------------------------------------------------------
+    //navigation scripts-------------------------------------------------------------------------------------------------------------------------------------------
     var navTable = null;
     var navPath = [];
     var navParent = null;
@@ -658,32 +660,60 @@
     });
 
     function setTable(files) {
+        navTable = [];
+
         if (openedNav === "Google Drive") {
-            navTable = files.d;
+            $.each(files.d, function (i, file) {
+                var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                navTable.push({
+                    name: file.Name,
+                    date: dateStr,
+                    type: file.MimeType,
+                    size: file.Size,
+                    id: file.Id,
+                    Is_Dir: null,
+                    path: null
+                });
+            });
 
             navTable.sort(function (a, b) {
-                if (a.MimeType == 'application/vnd.google-apps.folder' && b.MimeType != 'application/vnd.google-apps.folder')
+                if (a.type == 'application/vnd.google-apps.folder' && b.type != 'application/vnd.google-apps.folder')
                     return -1;
-                else if (a.MimeType != 'application/vnd.google-apps.folder' && b.MimeType == 'application/vnd.google-apps.folder')
+                else if (a.type != 'application/vnd.google-apps.folder' && b.type == 'application/vnd.google-apps.folder')
                     return 1;
-                else if (a.Name.toLowerCase() < b.Name.toLowerCase())
+                else if (a.name.toLowerCase() < b.name.toLowerCase())
                     return -1;
-                else if (a.Name.toLowerCase() > b.Name.toLowerCase())
+                else if (a.name.toLowerCase() > b.name.toLowerCase())
                     return 1;
                 else
                     return 0;
             });
         } else if (openedNav === "DropBox") {
-            navTable = files.d.Contents;
+            $.each(files.d.Contents, function (i, file) {
+                var date = new Date(parseInt(file.ModifiedDate.substr(6)));
+                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                navTable.push({
+                    name: file.Name,
+                    date: dateStr,
+                    type: file.Mime_Type,
+                    size: file.Size,
+                    id: null,
+                    Is_Dir: file.Is_Dir,
+                    path: file.Path
+                });
+            });
 
             navTable.sort(function (a, b) {
-                if (a.Is_Dir == true && b.Mime_Type == false)
+                if (a.Is_Dir == true && b.Is_Dir == false)
                     return -1;
                 else if (a.Is_Dir == false && b.Is_Dir == true)
                     return 1;
-                else if (a.Name.toLowerCase() < b.Name.toLowerCase())
+                else if (a.name.toLowerCase() < b.name.toLowerCase())
                     return -1;
-                else if (a.Name.toLowerCase() > b.Name.toLowerCase())
+                else if (a.name.toLowerCase() > b.name.toLowerCase())
                     return 1;
                 else
                     return 0;
@@ -695,48 +725,29 @@
 
     function writeTable() {
         var outNavTable = $('<tbody></tbody>');
-        if (openedNav === "Google Drive") {
-            $.each(navTable, function (i, file) {
-                var row = $('<tr data-i="' + i + '"></tr>');
-                var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+        
+        $.each(navTable, function (i, file) {
+            var row = $('<tr data-i="' + i + '"></tr>');
 
-                row.append('<td> </td>');
-                row.append('<td>' + file.Name + '</td>');
-                row.append('<td>' + dateStr + '</td>');
-                row.append('<td>' + file.MimeType + '</td>');
-                row.append('<td>' + file.Size + '</td>');
+            row.append('<td> </td>');
+            row.append('<td>' + file.name + '</td>');
+            row.append('<td>' + file.date + '</td>');
+            row.append('<td>' + file.type + '</td>');
+            row.append('<td>' + file.size + '</td>');
 
-                outNavTable.append(row);
-            });
-        } else if (openedNav === "DropBox") {
-            $.each(navTable, function (i, file) {
-                var row = $('<tr data-i="' + i + '"></tr>');
-                var date = new Date(parseInt(file.ModifiedDate.substr(6)));
-                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                row.append('<td> </td>');
-                row.append('<td>' + file.Name + '</td>');
-                row.append('<td>' + dateStr + '</td>');
-                row.append('<td>' + file.Mime_Type + '</td>');
-                row.append('<td>' + file.Size + '</td>');
-
-                outNavTable.append(row);
-            });
-        } else {
-            console.log("Navigation writeTable: Unknown openedNav");
-        }
+            outNavTable.append(row);
+        });
 
         $('#navTable tbody').remove();
         $('#navTable').append(outNavTable);
     }
 
     function getType(i) {
-        return navTable[i].MimeType;
+        return navTable[i].type;
     }
 
     function getId(i) {
-        return navTable[i].Id;
+        return navTable[i].id;
     }
 
     function isDir(i) {
@@ -744,100 +755,141 @@
     }
 
     function getPath(i) {
-        return navTable[i].Path;
+        return navTable[i].path;
     }
 
-    //Search scripts--------------------------------------------------------
-    $('#searchBtn').on('click', function () {
-        var searchStr = searchInput.val();
+    //Search scripts-------------------------------------------------------------------------------------------------------------------------------------------
+    var searchStr = null;
+    var searchFiles = [];
 
-        $.ajax({
-            url: 'Scripts/accounts.json',
-            type: 'get',
-            dataType: 'json',
-            cache: false,
-            success: function (accounts) {
-                $(accoutns).each(function (i, account) {
-                    //TODO----------------------------------------------------
-                    accType = JSON.stringify(account.AccountType);
-                    accLoc = JSON.stringify(account.Location);
+    $('#clearBtn').on('click', function () {
+        navTable = [];
+        writeTable();
 
-                    //TODO: return
-                    search(searchStr, accType, accLoc);
-
-                    //TODO: add files to list
-                });
-                //TODO: write list to navTable
-            },
-            error: function (navError) {
-                console.log('error getting accounts');
-                console.log(navError);
-            }
-        });
+        $('#backBtn').show();
+        $('#clearBtn').hide();
     });
 
-    function search(searchStr, accType, accLoc) {
-        //sets account
-        $.ajax({
+    $('#searchBtn').on('click', function () {
+        searchStr = $('#searchInput').val();
+        $('#searchInput').val('');
+        navTable = [];
+
+        $('#backBtn').hide();
+        $('#clearBtn').show();
+
+        $.when(getAccounts()).then(processAccounts);
+    });
+
+    function getAccounts() {
+        return $.ajax({
+            url: 'accounts.json',
+            type: 'get',
+            dataType: 'json',
+            cache: false
+        });
+    }
+
+    function processAccounts(accounts) {
+        $(accounts).each(function (i, account) {
+            var accType = JSON.stringify(account.AccountType);
+            var accLoc = JSON.stringify(account.Location);
+
+            $.when(setAccount(accType, accLoc)).then(processAccount(accType));
+        });
+    }
+
+    function setAccount(accType, accLoc) {
+        return $.ajax({
             type: "POST",
             url: "Default.aspx/setService",
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({ accAddress: accLoc, accountType: accType }),
-            dataType: 'json',
-            success: function (result) {
-                var files = null;
-
-                if (accType === "\"Google Drive\"")
-                    files = searchDrive(searchStr);
-                    //TODO: normalize
-                else if (accType === "\"DropBox\"")
-                    files = searchDrop(searchStr);
-                    //TODO: normalize
-                else
-                    console.log("Search: Unknown accType");
-
-                return files;
-            },
-            error: function (result) {
-                console.log('error on preperation of loading folder files on search');
-                console.log(navError);
-
-            }
+            dataType: 'json'
         });
     }
 
-    function searchDrive(searchStr) {
-        $.ajax({
+    function processAccount(accType) {
+        if (accType === "\"Google Drive\"") {
+            $.when(searchDrive()).then(function (files) { processFiles(files, accType) });
+        } else if (accType === "\"DropBox\"") {
+            $.when(searchDrop()).then(function (files) { processFiles(files, accType) });
+        } else {
+            console.log("Search: Unknown accType");
+            console.log(result);
+            console.log(accType);
+        }
+    }
+
+    function searchDrive() {
+        return $.ajax({
             type: 'POST',
             url: 'Default.aspx/getDriveSearch',
             data: JSON.stringify({ search: searchStr }),
             contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (files) {
-                return files;
-            },
-            error: function (navError) {
-                console.log('error loading folder files on search');
-                console.log(navError);
-            }
+            dataType: 'json'
         });
     }
 
-    function searchDrop(searchStr) {
-        $.ajax({
+    function searchDrop() {
+        return $.ajax({
             type: 'POST',
             url: 'Default.aspx/getDropSearch',
             data: JSON.stringify({ search: searchStr }),
             contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (files) {
-                return files;
-            },
-            error: function (navError) {
-                console.log('error loading folder files on search');
-                console.log(navError);
-            }
+            dataType: 'json'
         });
+    }
+
+    function processFiles(files, accType) {
+        if (accType === "\"Google Drive\"") {
+            $.each(files.d, function (i, file) {
+                if (file.MimeType != 'application/vnd.google-apps.folder') {
+                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                    navTable.push({
+                        name: file.Name,
+                        date: dateStr,
+                        type: file.MimeType,
+                        size: file.Size,
+                        id: file.Id,
+                        Is_Dir: null,
+                        path: null
+                    });
+                }
+            });
+        } else if (accType === "\"DropBox\"") {
+            $.each(files.d, function (i, file) {
+                if (file.Is_Dir != true) {
+                    var date = new Date(parseInt(file.ModifiedDate.substr(6)));
+                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                    navTable.push({
+                        name: file.Name,
+                        date: dateStr,
+                        type: file.Mime_Type,
+                        size: file.Size,
+                        id: null,
+                        Is_Dir: file.Is_Dir,
+                        path: file.Path
+                    });
+                }
+            });
+        } else {
+            console.log("Search: Unknown accType");
+        }
+
+        navTable.sort(function (a, b) {
+            if (a.name.toLowerCase() < b.name.toLowerCase())
+                return -1;
+            else if (a.name.toLowerCase() > b.name.toLowerCase())
+                return 1;
+            else
+                return 0;
+        });
+
+        writeTable();
     }
 </script>
 </html>
