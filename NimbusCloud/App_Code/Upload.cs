@@ -63,7 +63,6 @@ public class Upload
             mimeType = regKey.GetValue("Content Type").ToString();
         return mimeType;
     }
-}
     /// 
     /// Uploads a file
     /// Documentation: https://developers.google.com/drive/v2/reference/files/insert
@@ -74,7 +73,7 @@ public class Upload
     ///                       Setting this field will put the file in all of the provided folders. root folder.
     /// If upload succeeded returns the File resource of the uploaded file 
     ///          If the upload fails returns null
-   /* public static File uploadFile(DriveService _service, string _uploadFile, string _parent)
+    public static File uploadFile(DriveService _service, string _uploadFile, string _parent)
     {
 
         if (System.IO.File.Exists(_uploadFile))
@@ -90,9 +89,9 @@ public class Upload
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
             try
             {
-   //             FilesResource.InsertMediaUpload request = _service.Files.Insert(body, stream, GetMimeType(_uploadFile));
-    //            request.Upload();
-    //            return request.ResponseBody;
+                FilesResource.InsertMediaUpload request = _service.Files.Insert(body, stream, GetMimeType(_uploadFile));
+                request.Upload();
+                return request.ResponseBody;
             }
             catch (Exception e)
             {
@@ -133,9 +132,9 @@ public class Upload
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
             try
             {
-      //          FilesResource.UpdateMediaUpload request = _service.Files.Update(body, _fileId, stream, GetMimeType(_uploadFile));
-       //         request.Upload();
-         //       return request.ResponseBody;
+                FilesResource.UpdateMediaUpload request = _service.Files.Update(body, _fileId, stream, GetMimeType(_uploadFile));
+                request.Upload();
+                return request.ResponseBody;
             }
             catch (Exception e)
             {
@@ -152,4 +151,4 @@ public class Upload
     }
 
 
-}*/
+}

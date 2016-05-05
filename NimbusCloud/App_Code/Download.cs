@@ -28,9 +28,9 @@ public class Download
         {
             try
             {
-  //              var x = _service.HttpClient.GetByteArrayAsync(_fileResource.DownloadUrl);
-    //            byte[] arrBytes = x.Result;
-    //            System.IO.File.WriteAllBytes(_saveTo, arrBytes);
+                var x = _service.HttpClient.GetByteArrayAsync(_fileResource.DownloadUrl);
+                byte[] arrBytes = x.Result;
+                System.IO.File.WriteAllBytes(_saveTo, arrBytes);
                 return true;
             }
             catch (Exception e)
