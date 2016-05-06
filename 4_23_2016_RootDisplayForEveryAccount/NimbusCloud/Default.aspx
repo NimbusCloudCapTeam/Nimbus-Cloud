@@ -732,7 +732,10 @@
             row.append('<td> </td>');
             row.append('<td>' + file.name + '</td>');
             row.append('<td>' + file.date + '</td>');
-            row.append('<td>' + file.type + '</td>');
+            if (file.Is_Dir || file.type === 'application/vnd.google-apps.folder')
+                row.append('<td>' + 'folder' + '</td>');
+            else
+                row.append('<td>' + file.type + '</td>');
             row.append('<td>' + file.size + '</td>');
 
             outNavTable.append(row);
