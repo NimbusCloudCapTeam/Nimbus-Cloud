@@ -792,8 +792,8 @@
 
     function processAccounts(accounts) {
         $(accounts).each(function (i, account) {
-            var accType = JSON.stringify(account.AccountType);
             var accLoc = JSON.stringify(account.Location);
+            var accType = account.AccountType;
 
             $.when(setAccount(accType, accLoc)).then(processAccount(accType));
         });
@@ -810,9 +810,9 @@
     }
 
     function processAccount(accType) {
-        if (accType === "\"Google Drive\"") {
+        if (accType === "Google Drive") {
             $.when(searchDrive()).then(function (files) { processFiles(files, accType) });
-        } else if (accType === "\"DropBox\"") {
+        } else if (accType === "DropBox") {
             $.when(searchDrop()).then(function (files) { processFiles(files, accType) });
         } else {
             console.log("Search: Unknown accType");
@@ -842,7 +842,7 @@
     }
 
     function processFiles(files, accType) {
-        if (accType === "\"Google Drive\"") {
+        if (accType === "Google Drive") {
             $.each(files.d, function (i, file) {
                 if (file.MimeType != 'application/vnd.google-apps.folder') {
                     var date = new Date(parseInt(file.ModifiedTime.substr(6)));
@@ -859,7 +859,7 @@
                     });
                 }
             });
-        } else if (accType === "\"DropBox\"") {
+        } else if (accType === "DropBox") {
             $.each(files.d, function (i, file) {
                 if (file.Is_Dir != true) {
                     var date = new Date(parseInt(file.ModifiedDate.substr(6)));
