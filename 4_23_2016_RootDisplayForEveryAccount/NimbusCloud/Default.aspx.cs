@@ -19,7 +19,7 @@ using System.Text;
 using Newtonsoft.Json;
 using DropNet;
 
-public partial class _Default : System.Web.UI.Page 
+public partial class _Default : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -29,20 +29,22 @@ public partial class _Default : System.Web.UI.Page
     private static DropNetClient client;
 
     [WebMethod]
-    public static string setAuthorization(string accountName, string accountType) {
+    public static string setAuthorization(string accountName, string accountType)
+    {
         Authentication authenticate = new Authentication();
         //AccountControl account = new AccountControl();
         //bool tryAuth = false;
 
-        if (accountType == "Google Drive") { 
+        if (accountType == "Google Drive")
+        {
             authenticate.setGoogleAuth(accountType, accountName);
             service = authenticate.getGoogleService();
-         }
+        }
         if (accountType == "DropBox")
-            {
-                authenticate.setDropboxAuth(accountType, accountName);
-                client = authenticate.getDropboxService();
-            }
+        {
+            authenticate.setDropboxAuth(accountType, accountName);
+            client = authenticate.getDropboxService();
+        }
 
         AccountControl account = new AccountControl();
         account.addAccount(accountType, accountName);
@@ -86,23 +88,32 @@ public partial class _Default : System.Web.UI.Page
         return navigator.DropNavigate(path);
     }
     [WebMethod]
-    public static string removeAccount(string accountName, string accountType) {
+    public static string removeAccount(string accountName, string accountType)
+    {
         AccountControl account = new AccountControl();
         account.removeAccount(accountName, accountType);
         return "";
     }
 
     [WebMethod]
-    public static IList<Google.Apis.Drive.v3.Data.File> getDriveSearch(string search)
+    public static string downloadFile(string name, string path, string accountType)
     {
-        Navigation navigator = new Navigation(service);
-        return navigator.DriveSearch(search);
+        Download download = new Download();
+        if (accountType == "Google Drive")
+        {
+            download.downloadGoogleFile(service, name, path);
+        }
+        if (accountType == "DropBox") {
+            download.downloadDropboxFile(client, name, path);
+        }
+            return null;
     }
-
     [WebMethod]
-    public static List<DropNet.Models.MetaData> getDropSearch(string search)
+    public static string uploadFile(string path)
     {
-        Navigation navigator = new Navigation(client);
-        return navigator.DropSearch(search);
+        Upload upload = new Upload();
+
+        upload.uploadToDropbox(client, path);
+        return "";
     }
 }

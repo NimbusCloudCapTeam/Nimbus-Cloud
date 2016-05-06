@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Google.Apis.Drive.v2;
-using Google.Apis.Drive.v2.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Util.Store;
 using Google.Apis.Services;
+using Google.Apis.Drive.v2.Data;
+using DropNet;
+using System.Web;
+using System.IO;
 
 /// <summary>
 /// Summary description for Upload
@@ -29,7 +32,7 @@ public class Upload
     /// Collection of parent folders which contain this file. 
     ///                       Setting this field will put the file in all of the provided folders. root folder.
     /// 
-    public static File createDirectory(DriveService _service, string _title, string _description, string _parent)
+    /*public static File createDirectory(DriveService _service, string _title, string _description, string _parent)
     {
 
         File NewDirectory = null;
@@ -54,16 +57,17 @@ public class Upload
     }
 
     // tries to figure out the mime type of the file.
-    private static string GetMimeType(string fileName)
+     public static string GetMimeType(string fileName)
     {
         string mimeType = "application/unknown";
         string ext = System.IO.Path.GetExtension(fileName).ToLower();
         Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
-        if (regKey != null && regKey.GetValue("Content Type") != null)
-            mimeType = regKey.GetValue("Content Type").ToString();
+        if (regKey != null && regKey.GetValue("Content Type") != null) { 
+        mimeType = regKey.GetValue("Content Type").ToString();
+         }
         return mimeType;
     }
-}
+
     /// 
     /// Uploads a file
     /// Documentation: https://developers.google.com/drive/v2/reference/files/insert
@@ -74,7 +78,7 @@ public class Upload
     ///                       Setting this field will put the file in all of the provided folders. root folder.
     /// If upload succeeded returns the File resource of the uploaded file 
     ///          If the upload fails returns null
-   /* public static File uploadFile(DriveService _service, string _uploadFile, string _parent)
+    public static File uploadFile(DriveService _service, string _uploadFile, string _parent)
     {
 
         if (System.IO.File.Exists(_uploadFile))
@@ -90,9 +94,9 @@ public class Upload
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
             try
             {
-   //             FilesResource.InsertMediaUpload request = _service.Files.Insert(body, stream, GetMimeType(_uploadFile));
-    //            request.Upload();
-    //            return request.ResponseBody;
+                FilesResource.InsertMediaUpload request = _service.Files.Insert(body, stream, GetMimeType(_uploadFile));
+                request.Upload();
+                return request.ResponseBody;
             }
             catch (Exception e)
             {
@@ -149,7 +153,22 @@ public class Upload
             return null;
         }
 
+        return null;
+
+    }*/
+
+
+
+
+
+
+
+    public void uploadToDropbox(DropNetClient client, string path) {
+        path = path.Replace(@"C:\fakepath\", " ");
+        var fullPath = Path.GetDirectoryName(path);
+        var fileBytes = Path.Combine(Directory.GetCurrentDirectory(), fullPath);
+       // var uploaded = client.UploadFile("/", "test.txt", fileBytes);
     }
 
 
-}*/
+}

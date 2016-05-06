@@ -23,9 +23,9 @@
         <div class="container-fluid" style="background-color:#0B3C5D;">
             <nav class="navbar navbar-dark" style="background-color:#1D2731; margin-top:20px" >
                 <div class="col-md-3" style="margin-top:8px; margin-left:15%">
-                     <input type="text" class="form-control" placeholder="Search" id="searchInput"/>
+                     <input type="text" class="form-control" placeholder="Search"/>
                </div>  
-                <button type="button" class="btn btn-default" style="margin-top:8px" id="searchBtn">Submit</button>
+                <button type="submit" class="btn btn-default" style="margin-top:8px">Submit</button>
 
                 <ul class="nav navbar-nav navbar-right" style="margin-right:1.5%">
                     <li class="nav-item active">
@@ -44,6 +44,7 @@
             </nav>
         </div>
 
+        <!--account Column -->
         <div class="container-fluid" style="background-color:#D9B310; min-height:5px;"></div>
         <div class="row">
             <div class="container-fluid" >
@@ -88,13 +89,11 @@
                  </div>
             </div>
 
-
+            <!--File Management -->
             <div class="col-md-8"  style="background-color:white; min-height: 690px;">
                 <div style="min-height:15px"></div>
                 <button id="backBtn" type="button" class="btn btn-primary btn-sm">
                     <span class="glyphicon glyphicon-chevron-left"></span> Back</button>
-                <button id="clearBtn" type="button" class="btn btn-primary btn-sm" style="display:none">
-                    <span class="glyphicon glyphicon-remove"></span> Clear</button>
                 <table class="table" id="navTable">
                   <thead>
                     <tr>
@@ -107,24 +106,28 @@
                   </thead>
                 </table>
             </div>
+
+            <!--File Manage -->
             <div class="col-md-2"  style="background-color:#1D2731; min-height: 690px;">
                 <h3 style="color:white"><center> Details </center></h3>
                 <div style="background-color:white; min-height:2px"></div>
                 <div style="min-height:20px"></div>
-                <p style="color:white">File Name:</p>
-                <p style="color:white">Type:</p>
-                <p style="color:white">Size:</p>
-                <p style="color:white">Date:</p>
+                <p id="fileNameSelect" style="color:white">Name:</p>
+                <p id="fileTypeSelect" style="color:white">Type:</p>
+                <p id="fileSizeSelect" style="color:white">Size:</p>
+                <p id="fileDateSelect" style="color:white">Date:</p>
                 <div style="min-height:20px"></div>
                 <center>
-                    <button type="button" class="btn btn-primary">Upload</button>
-                    <button type="button" class="btn btn-primary">Download </button>
+                    <button type="button" class="btn btn-primary" id="downloadBtn">Download </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFileModal">Upload</button>
                 </center>
             </div>
         </div>
         </div>
         <div class="container-fluid" style="background-color:#D9B310; min-height:10px;"></div>
-         <!-- Modal content-->
+    </form>
+
+     <!-- Modal content-->
         <div id="addAccountModal" class="modal fade" role="dialog" >
           <div class="modal-dialog">
             <div class="modal-content modal-sm">
@@ -206,12 +209,49 @@
 
           </div>
         </div>
-    </form>
+
+        <div id="uploadFileModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content modal-sm">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upload File</h4>
+              </div>
+              <div class="modal-body">
+                  <input type="file" id="uploadFile" name="uploadFile" />
+                  
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-dismiss="modal" id="submitUploadBtn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="closeUploadAccBtn">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
 </body>
 <script>
+
+    //Variables for the functions below
     var openedNav;
     var removeName;
     var removeType;
+    var accountType;
+    var getResult = '';
+    var addedType = "";
+    var accData;
+    var googleList = [];
+    var dropboxList = [];
+    var navTable = null;
+    var navPath = [];
+    var navParent = null;
+    var selectedFile;
+    var selectedName;
+    var selectedType;
+    var folderCheck;
+
+    //Manages account Menu
     $('#accountMenu a').click(function (e) {
         e.preventDefault()
         if (this.id == "boxPan") {
@@ -244,7 +284,49 @@
         }
 
     })
-    var accountType;
+    
+
+
+    //Upload to DB atm
+    $('#submitUploadBtn').on('click', function (e) {
+        var path = $('#uploadFile').val()
+        $.ajax({
+            type: "POST",
+            url: "Default.aspx/uploadFile",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ path: path }),
+            dataType: 'json',
+            success: function (result) {
+                alert("File Uploaded");
+            },
+            error: function (result) {
+                alert("File Not Uploaded");
+            }
+        });
+
+
+    });
+
+
+    //Download selected File
+    $('#downloadBtn').on('click', function (e) {
+        if (folderCheck = false) {
+            $.ajax({
+                type: "POST",
+                url: "Default.aspx/downloadFile",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ name: selectedName, path: selectedFile, accountType: selectedType }),
+                dataType: 'json',
+                success: function (result) {
+                    alert("File Downloaded");
+                },
+                error: function (result) {
+                    alert("File Not Downloaded");
+                }
+            });
+        }
+    });
+
     $(function () {
 
         $("#addAccountDropDown li a").click(function () {
@@ -286,10 +368,11 @@
 
 
 
-    var getResult = '';
-    var addedType = "";
+    
 
     //modal buttons
+
+    //Remove Account
     $("#submitRemoveAccBtn").click(function () {
         $.ajax({
             type: "POST",
@@ -309,6 +392,8 @@
 
 
     });
+
+    //Add Account
     $("#closeAddAccBtn").click(function () {
     });
     $("#submitAddAccBtn").click(function () {
@@ -344,17 +429,15 @@
         $('#accountNameTextBox').val("")
     })
 
-    var accData;
     $(document).ready(function () {
-        setDropBoxAccounts();
-        setGoogleAccounts();
+
     });
 
 
     function setData(data) {
         accData = data;
     }
-    var googleList = [];
+
 
     function addGoogleList(accN, accL) {
         googleList.push({
@@ -382,7 +465,7 @@
         });
     }
 
-    var dropboxList = [];
+    
     function addDropboxList(accN, accL) {
         dropboxList.push({
             accName: accN,
@@ -511,10 +594,8 @@
 
     }
 
-    //navigation scripts-------------------------------------------------------------------------------------------------------------------------------------------
-    var navTable = null;
-    var navPath = [];
-    var navParent = null;
+    //navigation scripts--------------------------------------------------------
+
 
     function getDriveRoot() {
         navParent = "root";
@@ -558,10 +639,43 @@
         $(this).toggleClass('active');
     });
 
+   
     $('#navTable').on('click', 'tbody tr', function () {
         $(this).toggleClass('info');
         $(this).siblings('tr').removeClass('info');
+        var Name = getName($(this).data('i'));
+        var Type = getType($(this).data('i'));
+        var Size = getSize($(this).data('i'));
+        var Date = getDate($(this).data('i'));
+        
+        $('#fileNameSelect').text("Name: " + Name);
+        $('#fileTypeSelect').text("Type: " + Type);
+        $('#fileSizeSelect').text("Size: " + Size);
+        $('#fileDateSelect').text("Date: " + Date);
+        
+        selectedName = Name;
+
+        if (openedNav === "Google Drive") {
+            selectedType = "Google Drive";
+            selectedFile = getId($(this).data('i'));
+            if (getType($(this).data('i')) == 'application/vnd.google-apps.folder') {
+                folderCheck = ture;
+            } else {
+                folderCheck = false;
+            }
+        }
+        if (openedNav === "DropBox") {
+            selectedType = "DropBox";
+            selectedFile = getPath($(this).data('i'));
+            if (isDir($(this).data('i')) == true) {
+                folderCheck = ture;
+            } else {
+                folderCheck = false;
+            }
+
+        }
     });
+
 
     $('#navTable').on('dblclick', 'tbody tr', function () {
         if (openedNav === "Google Drive") {
@@ -660,60 +774,32 @@
     });
 
     function setTable(files) {
-        navTable = [];
-
         if (openedNav === "Google Drive") {
-            $.each(files.d, function (i, file) {
-                var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                navTable.push({
-                    name: file.Name,
-                    date: dateStr,
-                    type: file.MimeType,
-                    size: file.Size,
-                    id: file.Id,
-                    Is_Dir: null,
-                    path: null
-                });
-            });
+            navTable = files.d;
 
             navTable.sort(function (a, b) {
-                if (a.type == 'application/vnd.google-apps.folder' && b.type != 'application/vnd.google-apps.folder')
+                if (a.MimeType == 'application/vnd.google-apps.folder' && b.MimeType != 'application/vnd.google-apps.folder')
                     return -1;
-                else if (a.type != 'application/vnd.google-apps.folder' && b.type == 'application/vnd.google-apps.folder')
+                else if (a.MimeType != 'application/vnd.google-apps.folder' && b.MimeType == 'application/vnd.google-apps.folder')
                     return 1;
-                else if (a.name.toLowerCase() < b.name.toLowerCase())
+                else if (a.Name.toLowerCase() < b.Name.toLowerCase())
                     return -1;
-                else if (a.name.toLowerCase() > b.name.toLowerCase())
+                else if (a.Name.toLowerCase() > b.Name.toLowerCase())
                     return 1;
                 else
                     return 0;
             });
         } else if (openedNav === "DropBox") {
-            $.each(files.d.Contents, function (i, file) {
-                var date = new Date(parseInt(file.ModifiedDate.substr(6)));
-                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                navTable.push({
-                    name: file.Name,
-                    date: dateStr,
-                    type: file.Mime_Type,
-                    size: file.Size,
-                    id: null,
-                    Is_Dir: file.Is_Dir,
-                    path: file.Path
-                });
-            });
+            navTable = files.d.Contents;
 
             navTable.sort(function (a, b) {
-                if (a.Is_Dir == true && b.Is_Dir == false)
+                if (a.Is_Dir == true && b.Mime_Type == false)
                     return -1;
                 else if (a.Is_Dir == false && b.Is_Dir == true)
                     return 1;
-                else if (a.name.toLowerCase() < b.name.toLowerCase())
+                else if (a.Name.toLowerCase() < b.Name.toLowerCase())
                     return -1;
-                else if (a.name.toLowerCase() > b.name.toLowerCase())
+                else if (a.Name.toLowerCase() > b.Name.toLowerCase())
                     return 1;
                 else
                     return 0;
@@ -725,32 +811,48 @@
 
     function writeTable() {
         var outNavTable = $('<tbody></tbody>');
-        
-        $.each(navTable, function (i, file) {
-            var row = $('<tr data-i="' + i + '"></tr>');
+        if (openedNav === "Google Drive") {
+            $.each(navTable, function (i, file) {
+                var row = $('<tr data-i="' + i + '"></tr>');
+                var date = new Date(parseInt(file.ModifiedTime.substr(6)));
+                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 
-            row.append('<td> </td>');
-            row.append('<td>' + file.name + '</td>');
-            row.append('<td>' + file.date + '</td>');
-            if (file.Is_Dir || file.type === 'application/vnd.google-apps.folder')
-                row.append('<td>' + 'folder' + '</td>');
-            else
-                row.append('<td>' + file.type + '</td>');
-            row.append('<td>' + file.size + '</td>');
+                row.append('<td> </td>');
+                row.append('<td>' + file.Name + '</td>');
+                row.append('<td>' + dateStr + '</td>');
+                row.append('<td>' + file.MimeType + '</td>');
+                row.append('<td>' + file.Size + '</td>');
 
-            outNavTable.append(row);
-        });
+                outNavTable.append(row);
+            });
+        } else if (openedNav === "DropBox") {
+            $.each(navTable, function (i, file) {
+                var row = $('<tr data-i="' + i + '"></tr>');
+                var date = new Date(parseInt(file.ModifiedDate.substr(6)));
+                var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+
+                row.append('<td> </td>');
+                row.append('<td>' + file.Name + '</td>');
+                row.append('<td>' + dateStr + '</td>');
+                row.append('<td>' + file.Mime_Type + '</td>');
+                row.append('<td>' + file.Size + '</td>');
+
+                outNavTable.append(row);
+            });
+        } else {
+            console.log("Navigation writeTable: Unknown openedNav");
+        }
 
         $('#navTable tbody').remove();
         $('#navTable').append(outNavTable);
     }
 
     function getType(i) {
-        return navTable[i].type;
+        return navTable[i].MimeType;
     }
 
     function getId(i) {
-        return navTable[i].id;
+        return navTable[i].Id;
     }
 
     function isDir(i) {
@@ -758,141 +860,19 @@
     }
 
     function getPath(i) {
-        return navTable[i].path;
+        return navTable[i].Path;
     }
 
-    //Search scripts-------------------------------------------------------------------------------------------------------------------------------------------
-    var searchStr = null;
-    var searchFiles = [];
-
-    $('#clearBtn').on('click', function () {
-        navTable = [];
-        writeTable();
-
-        $('#backBtn').show();
-        $('#clearBtn').hide();
-    });
-
-    $('#searchBtn').on('click', function () {
-        searchStr = $('#searchInput').val();
-        $('#searchInput').val('');
-        navTable = [];
-
-        $('#backBtn').hide();
-        $('#clearBtn').show();
-
-        $.when(getAccounts()).then(processAccounts);
-    });
-
-    function getAccounts() {
-        return $.ajax({
-            url: 'accounts.json',
-            type: 'get',
-            dataType: 'json',
-            cache: false
-        });
+    function getName(i) {
+        return navTable[i].Name;
     }
 
-    function processAccounts(accounts) {
-        $(accounts).each(function (i, account) {
-            var accLoc = JSON.stringify(account.Location);
-            var accType = account.AccountType;
-
-            $.when(setAccount(accType, accLoc)).then(processAccount(accType));
-        });
+    function getSize(i) {
+        return navTable[i].Size;
     }
 
-    function setAccount(accType, accLoc) {
-        return $.ajax({
-            type: "POST",
-            url: "Default.aspx/setService",
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({ accAddress: accLoc, accountType: accType }),
-            dataType: 'json'
-        });
-    }
-
-    function processAccount(accType) {
-        if (accType === "Google Drive") {
-            $.when(searchDrive()).then(function (files) { processFiles(files, accType) });
-        } else if (accType === "DropBox") {
-            $.when(searchDrop()).then(function (files) { processFiles(files, accType) });
-        } else {
-            console.log("Search: Unknown accType");
-            console.log(result);
-            console.log(accType);
-        }
-    }
-
-    function searchDrive() {
-        return $.ajax({
-            type: 'POST',
-            url: 'Default.aspx/getDriveSearch',
-            data: JSON.stringify({ search: searchStr }),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json'
-        });
-    }
-
-    function searchDrop() {
-        return $.ajax({
-            type: 'POST',
-            url: 'Default.aspx/getDropSearch',
-            data: JSON.stringify({ search: searchStr }),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json'
-        });
-    }
-
-    function processFiles(files, accType) {
-        if (accType === "Google Drive") {
-            $.each(files.d, function (i, file) {
-                if (file.MimeType != 'application/vnd.google-apps.folder') {
-                    var date = new Date(parseInt(file.ModifiedTime.substr(6)));
-                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                    navTable.push({
-                        name: file.Name,
-                        date: dateStr,
-                        type: file.MimeType,
-                        size: file.Size,
-                        id: file.Id,
-                        Is_Dir: null,
-                        path: null
-                    });
-                }
-            });
-        } else if (accType === "DropBox") {
-            $.each(files.d, function (i, file) {
-                if (file.Is_Dir != true) {
-                    var date = new Date(parseInt(file.ModifiedDate.substr(6)));
-                    var dateStr = (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-
-                    navTable.push({
-                        name: file.Name,
-                        date: dateStr,
-                        type: file.Mime_Type,
-                        size: file.Size,
-                        id: null,
-                        Is_Dir: file.Is_Dir,
-                        path: file.Path
-                    });
-                }
-            });
-        } else {
-            console.log("Search: Unknown accType");
-        }
-
-        navTable.sort(function (a, b) {
-            if (a.name.toLowerCase() < b.name.toLowerCase())
-                return -1;
-            else if (a.name.toLowerCase() > b.name.toLowerCase())
-                return 1;
-            else
-                return 0;
-        });
-
-        writeTable();
+    function getDate(i) {
+        return navTable[i].Date;
     }
 </script>
 </html>
